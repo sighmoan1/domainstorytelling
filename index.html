@@ -1,206 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Domain Storytelling</title>
-  <!-- Material Icons (Google Fonts) -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <!-- html2canvas for PNG export -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Domain Storytelling</title>
 
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 1.5rem;
-    }
-    h1 {
-      margin-bottom: 1rem;
-    }
+    <!-- Material Icons (Google Fonts) -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
 
-    textarea {
-      width: 100%;
-      height: 200px;
-      margin-bottom: 1rem;
-      font-family: monospace;
-    }
+    <!-- html2canvas for PNG export -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-    button {
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      margin-right: 0.5rem;
-      margin-bottom: 1rem;
-    }
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 1.5rem;
+      }
+      h1 {
+        margin-bottom: 1rem;
+      }
 
-    /* Full 2000×1200 canvas in-page. Scroll your browser window if smaller. */
-    .diagram-canvas {
-      position: relative;
-      width: 2000px;
-      height: 1200px;
-      background: #fafafa;
-      margin-bottom: 1rem;
-    }
+      textarea {
+        width: 100%;
+        height: 200px;
+        margin-bottom: 1rem;
+        font-family: monospace;
+      }
 
-    /* Where participants (HTML boxes) go */
-    .participants-layer {
-      position: absolute;
-      top: 0; left: 0;
-      width: 2000px;
-      height: 1200px;
-    }
+      button {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        margin-right: 0.5rem;
+        margin-bottom: 1rem;
+      }
 
-    /* Each participant box (120×120) */
-    .participant {
-      position: absolute;
-      width: 120px;
-      height: 120px;
-      text-align: center;
-      cursor: move;
-      user-select: none;
-      background: rgba(255,255,255,0.9);
-      box-shadow: 0 0 4px rgba(0,0,0,0.2);
-      border-radius: 4px;
-      padding: 4px;
-      box-sizing: border-box;
-      overflow-wrap: break-word;
-    }
-    .material-icons {
-      font-size: 40px;
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-    .participant-annotation {
-      font-size: 0.8rem;
-      color: #555;
-      margin-top: 0.25rem;
-      white-space: pre-wrap; /* multiline */
-    }
+      .diagram-canvas {
+        position: relative;
+        width: 2000px;
+        height: 1200px;
+        background: #fafafa;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+      }
 
-    /* SVG for arrows & callouts */
-    svg {
-      position: absolute;
-      top: 0; left: 0;
-      width: 2000px;
-      height: 1200px;
-      pointer-events: none;
-    }
+      .participants-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 2000px;
+        height: 1200px;
+      }
 
-    .flow-title {
-      font-size: 18px;
-      fill: #000;
-      font-weight: bold;
-    }
+      .participant {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        text-align: center;
+        cursor: move;
+        user-select: none;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        padding: 4px;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+      }
+      .material-icons {
+        font-size: 40px;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+      .participant-annotation {
+        font-size: 0.8rem;
+        colour: #555;
+        margin-top: 0.25rem;
+        white-space: pre-wrap;
+      }
 
-    /* The arrow line's control handle (draggable circle) */
-    .control-handle {
-      fill: #f44336;
-      stroke: #fff;
-      stroke-width: 2;
-      cursor: move;
-      pointer-events: all;
-    }
+      svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 2000px;
+        height: 1200px;
+        pointer-events: none;
+      }
 
-    /* Step annotation bracket */
-    .callout-box {
-      fill: #fff;
-      stroke: #888;
-      stroke-width: 1;
-    }
-    .callout-text {
-      font-size: 12px;
-      fill: #333;
-      text-anchor: middle;
-      white-space: pre-wrap;
-    }
+      .flow-title {
+        font-size: 18px;
+        fill: #000;
+        font-weight: bold;
+      }
 
-    /* Label background & text (offset from line) */
-    .label-box {
-      fill: #fff;
-      stroke: none;
-    }
-    .label-text {
-      font-size: 14px;
-      fill: #000;
-      text-anchor: middle;
-    }
+      .control-handle {
+        fill: #f44336;
+        stroke: #fff;
+        stroke-width: 2;
+        cursor: move;
+        pointer-events: all;
+      }
 
-    /* Flow number circle for first step of each flow */
-    .step-number-circle {
-      fill: #666;
-    }
-    .step-number-text {
-      font-size: 12px;
-      fill: #fff;
-      text-anchor: middle;
-      dominant-baseline: central;
-    }
+      .callout-box {
+        fill: #fff;
+        stroke: #888;
+        stroke-width: 1;
+      }
+      .callout-text {
+        font-size: 12px;
+        fill: #333;
+        text-anchor: middle;
+        white-space: pre-wrap;
+      }
 
-    /* Step list & icon key below diagram */
-    .step-list { margin-top: 1rem; }
-    .step { margin-bottom: 0.5rem; }
-    .key-container { margin-top: 2rem; }
-    .key-entry {
-      display: inline-block;
-      margin-right: 2rem;
-      text-align: center;
-    }
+      .label-box {
+        fill: #fff;
+        stroke: none;
+      }
+      .label-text {
+        font-size: 14px;
+        fill: #000;
+        text-anchor: middle;
+      }
 
-    /* Icon picker panel (full set) */
-    .icon-picker-container {
-      border: 1px solid #ccc;
-      padding: 1rem;
-      max-height: 400px;
-      overflow-y: auto;
-      display: none;
-      margin-bottom: 1rem;
-      background: #fafafa;
-    }
-    .icon-picker-search {
-      margin-bottom: 0.5rem;
-      width: 100%;
-    }
-    .icon-picker-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-    .icon-picker-item {
-      width: 70px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 0.8rem;
-      border: 1px solid transparent;
-      border-radius: 4px;
-      padding: 0.25rem 0;
-    }
-    .icon-picker-item:hover {
-      background: #eee;
-      border-color: #ccc;
-    }
-    .icon-picker-item .material-icons {
-      font-size: 24px;
-      display: block;
-      margin: 0 auto;
-    }
+      .step-number-circle {
+        fill: #666;
+      }
+      .step-number-text {
+        font-size: 12px;
+        fill: #fff;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
 
-    /* Hidden SVG for text measurement */
-    .hidden-svg {
-      position: absolute;
-      visibility: hidden;
-      pointer-events: none;
-    }
-  </style>
-</head>
-<body>
-  <h1>Domain Storytelling</h1>
+      /* The step list simply shows the original lines now. */
+      .step-list {
+        margin-top: 1rem;
+      }
+      .step {
+        margin-bottom: 0.5rem;
+        white-space: pre;
+      }
 
-  <p><strong>Syntax</strong></p>
-  <pre>
+      .icon-picker-container {
+        border: 1px solid #ccc;
+        padding: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+        display: none;
+        margin-bottom: 1rem;
+        background: #fafafa;
+      }
+      .icon-picker-search {
+        margin-bottom: 0.5rem;
+        width: 100%;
+      }
+      .icon-picker-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      .icon-picker-item {
+        width: 70px;
+        text-align: centre;
+        cursor: pointer;
+        font-size: 0.8rem;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        padding: 0.25rem 0;
+      }
+      .icon-picker-item:hover {
+        background: #eee;
+        border-colour: #ccc;
+      }
+      .icon-picker-item .material-icons {
+        font-size: 24px;
+        display: block;
+        margin: 0 auto;
+      }
 
-You must have an Actors list. Then you can have as many flow lists as you want. 
-    Normal brackets defines the icon for the actor. 
-    Square brackets an annotation for the actor, or the flow step. 
+      .hidden-svg {
+        position: absolute;
+        visibility: hidden;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Domain Storytelling</h1>
 
-Use the below to see how it renders. The renderer is kinda bad so you need to move things around with the red circles.
+    <p><strong>Syntax</strong></p>
+    <pre>
+You must have an Actors list. Then you can have as many flows as you want.
+Normal brackets define the icon for the actor.
+Square brackets define an annotation for the actor, or the flow step.
+
+Example:
 
 # Actors
 * Main User (person) [The central actor]
@@ -213,779 +210,997 @@ Use the below to see how it renders. The renderer is kinda bad so you need to mo
 
 # Asking for a refund
 1. Main User asks for a refund from Checkout
+    </pre>
 
+    <textarea
+      id="storyInput"
+      placeholder="Paste your domain story here..."
+    ></textarea>
+    <br />
+    <button id="toggleIconPickerButton">Show/Hide Icon Picker</button>
+    <button id="downloadPNGButton">Download PNG</button>
 
-  </pre>
+    <!-- Icon picker panel -->
+    <div class="icon-picker-container" id="iconPicker">
+      <input
+        type="text"
+        class="icon-picker-search"
+        id="iconSearch"
+        placeholder="Type to search icons..."
+      />
+      <div class="icon-picker-grid" id="iconPickerGrid"></div>
+    </div>
 
-  <textarea id="storyInput" placeholder="Paste your domain story here..."></textarea>
-  <br/>
-  <button onclick="renderStory()">Render Domain Story</button>
-  <button onclick="toggleIconPicker()">Show/Hide Icon Picker</button>
-  <button onclick="downloadDiagramAsPNG()">Download PNG</button>
+    <div class="diagram-canvas" id="diagramCanvas">
+      <div class="participants-layer" id="participantsLayer"></div>
+      <svg id="diagramSVG"></svg>
+    </div>
 
-  <!-- Icon picker panel -->
-  <div class="icon-picker-container" id="iconPicker">
-    <input type="text" class="icon-picker-search" id="iconSearch" placeholder="Type to search icons..."/>
-    <div class="icon-picker-grid" id="iconPickerGrid"></div>
-  </div>
+    <div class="step-list" id="stepList"></div>
 
-  <!-- The full diagram (2000×1200) in the page -->
-  <div class="diagram-canvas" id="diagramCanvas">
-    <div class="participants-layer" id="participantsLayer"></div>
-    <svg id="diagramSVG"></svg>
-  </div>
+    <!-- Hidden SVG for measuring text -->
+    <svg class="hidden-svg" id="hiddenMeasureSVG">
+      <text id="hiddenMeasureText" font-size="14" fill="#000"></text>
+    </svg>
 
-  <div class="step-list" id="stepList"></div>
-  <div class="key-container" id="iconKey"></div>
+    <script>
+      /************************************************************
+       * 1) Full Material Icons Loader
+       ************************************************************/
+      let allMaterialIcons = [];
 
-  <!-- Hidden SVG for measuring text -->
-  <svg class="hidden-svg" id="hiddenMeasureSVG">
-    <text id="hiddenMeasureText" font-size="14" fill="#000"></text>
-  </svg>
-
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script>
-    /************************************************************
-     * 1) Full Material Icons Loader
-     ************************************************************/
-    let ALL_MATERIAL_ICONS=[];
-
-    async function loadAllMaterialIcons(){
-      const resp=await fetch("https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints");
-      const text=await resp.text();
-      const lines=text.split("\n").filter(Boolean);
-      ALL_MATERIAL_ICONS=lines.map(line=>{
-        const [name, code]=line.split(" ");
-        return {name, code};
-      }).sort((a,b)=>a.name.localeCompare(b.name));
-    }
-
-    function renderIconPicker(searchVal=""){
-      const grid=document.getElementById("iconPickerGrid");
-      grid.innerHTML="";
-      const lower=searchVal.toLowerCase();
-      let filtered=ALL_MATERIAL_ICONS;
-      if(lower){
-        filtered=ALL_MATERIAL_ICONS.filter(icon=> icon.name.includes(lower));
+      async function loadAllMaterialIcons() {
+        const resp = await fetch(
+          "https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints"
+        );
+        const text = await resp.text();
+        const lines = text.split("\n").filter(Boolean);
+        allMaterialIcons = lines
+          .map((line) => {
+            const [name, code] = line.split(" ");
+            return { name, code };
+          })
+          .sort((a, b) => a.name.localeCompare(b.name));
       }
-      const MAX_SHOW=600;
-      let count=0;
-      for(let i=0; i<filtered.length&&count<MAX_SHOW; i++){
-        const icon=filtered[i];
-        const div=document.createElement("div");
-        div.className="icon-picker-item";
-        div.innerHTML=`
-          <span class="material-icons">${icon.name}</span>
-          <small>${icon.name}</small>
-        `;
-        div.addEventListener("click",()=>{
-          navigator.clipboard.writeText(icon.name);
-          alert("Copied icon name: "+icon.name);
-        });
-        grid.appendChild(div);
-        count++;
-      }
-      if(count===MAX_SHOW && filtered.length>MAX_SHOW){
-        const info=document.createElement("div");
-        info.textContent=`Showing ${MAX_SHOW} of ${filtered.length} matches. Please refine your search.`;
-        grid.appendChild(info);
-      }
-    }
 
-    async function setupIconPicker(){
-      try{
-        await loadAllMaterialIcons();
-        renderIconPicker("");
-        const search=document.getElementById("iconSearch");
-        search.addEventListener("input", ()=>renderIconPicker(search.value));
-      }catch(err){
-        console.error("Failed to load icons:",err);
-        alert("Could not load Material Icons list.");
-      }
-    }
-    setupIconPicker();
-
-    function toggleIconPicker(){
-      const picker=document.getElementById("iconPicker");
-      picker.style.display=(picker.style.display==="block")?"none":"block";
-    }
-
-    /************************************************************
-     * 2) Parsing the New Syntax
-     *
-     * # Actors
-     * * Name (icon) [Optional annotation]
-     *
-     * # SomeFlow
-     * 1. FromActor ActionWords ToActor [Optional annotation]
-     *
-     ************************************************************/
-    function parseNewSyntax(input){
-      const lines=input.split("\n").map(l=>l.trim()).filter(Boolean);
-      let actorsSection=false;
-      let flows=[];
-      let participants=[];
-      let currentFlow=null;
-      let flowCounter=0;
-
-      lines.forEach(line=>{
-        // # Actors => begin actor definition section
-        if(/^#\s+Actors/i.test(line)){
-          actorsSection=true;
-          return;
+      function renderIconPicker(searchVal = "") {
+        const grid = document.getElementById("iconPickerGrid");
+        grid.innerHTML = "";
+        const lower = searchVal.toLowerCase();
+        let filtered = allMaterialIcons;
+        if (lower) {
+          filtered = allMaterialIcons.filter((icon) =>
+            icon.name.includes(lower)
+          );
         }
-        // # SomeFlow => new flow
-        if(line.startsWith("#")){
-          actorsSection=false;
-          flowCounter++;
-          const title=line.replace(/^#+\s*/,"").trim();
-          currentFlow={
-            flowNumber:flowCounter,
-            title,
-            steps:[]
-          };
-          flows.push(currentFlow);
-          return;
-        }
-
-        if(actorsSection){
-          // Actor lines: "* Name (icon) [annotation optional]"
-          if(line.startsWith("*")){
-            // e.g. "* Main User (person) [The central actor]"
-            // let's parse out annotation from bracket if present
-            const bracketMatch=line.match(/\[(.*?)\]\s*$/); // annotation
-            let annotation=null;
-            let lineNoAnn=line;
-            if(bracketMatch){
-              annotation=bracketMatch[1].trim();
-              lineNoAnn=line.replace(bracketMatch[0],"").trim();
-            }
-            // Then parse "* name (icon)"
-            const match=lineNoAnn.match(/^\*\s+(.*?)\s*\((.*?)\)$/);
-            if(match){
-              const name=match[1].trim();
-              const icon=match[2].trim();
-              participants.push({name,icon,annotation});
-            }
-          }
-        } else {
-          // Must be flow steps if currentFlow != null
-          if(!currentFlow)return;
-
-          // Steps: "1. FromActor ActionWords ToActor [annotation?]"
-          if(/^\d+\.\s+/.test(line)){
-            // remove "1."
-            const stepMatch=line.match(/^(\d+)\.\s+(.*)$/);
-            if(!stepMatch)return;
-            let stepText=stepMatch[2].trim();
-
-            // Check for bracket annotation at the end
-            let stepAnnotation=null;
-            const bracketMatch=stepText.match(/\[(.*?)\]\s*$/);
-            if(bracketMatch){
-              stepAnnotation=bracketMatch[1].trim();
-              stepText=stepText.replace(bracketMatch[0],"").trim();
-            }
-
-            // Now we have "FromActor ActionWords ToActor"
-            // We need to find the "from" as the first known participant, "to" as the last known participant, everything in between is action
-            const {from, action, to}=extractStepFromActionTo(stepText, participants.map(p=>p.name));
-            currentFlow.steps.push({
-              from,
-              action,
-              to,
-              annotation: stepAnnotation,
-              controlX:null,
-              controlY:null
-            });
-          }
-        }
-      });
-
-      return {participants, flows};
-    }
-
-    /**
-     * Attempt to find "from" = first participant name from left,
-     * "to" = last participant from right,
-     * "action" = everything in between
-     * If we can't find 2 participants, we do a fallback guess.
-     */
-    function extractStepFromActionTo(line, participantNames){
-      // We'll do a naive approach:
-      // 1) find all matches in the line for known participants
-      // 2) pick the first as "from," the last as "to." Then everything between them is action
-      // Because participant might have spaces, we do indexOf checks for each participant name carefully.
-      // We'll store them as {name, index} if found as a substring
-      // Then pick min index as from, max index as to. This only works if the line is guaranteed to contain them distinctly.
-
-      // If your participants share partial names, this might be ambiguous. We'll do best-effort.
-
-      let found=[];
-      participantNames.forEach(pName=>{
-        // find all occurrences? We just find the first occurrence for each participant. 
-        // If the participant can appear multiple times or overlap, we won't handle that well.
-        const i=line.indexOf(pName);
-        if(i>=0) found.push({name:pName, index:i});
-      });
-      if(found.length<2){
-        // can't find two distinct participants
-        // fallback: from= first word, to= last word, action= middle
-        const tokens=line.split(/\s+/);
-        if(tokens.length>=3){
-          return {
-            from: tokens[0],
-            action: tokens.slice(1, tokens.length-1).join(" "),
-            to: tokens[tokens.length-1]
-          };
-        } else {
-          return {from: line, action:"", to:""}; // fallback
-        }
-      }
-      // pick first occurrence => from
-      found.sort((a,b)=>a.index-b.index);
-      const fromName=found[0].name;
-      const toName=found[found.length-1].name;
-      // now we remove fromName and toName from the line
-      // everything in between is action
-      const fromPos=line.indexOf(fromName);
-      const afterFrom=fromPos+fromName.length;
-      const toPos=line.lastIndexOf(toName);
-      // text in between
-      let action=line.substring(afterFrom, toPos).trim();
-      // remove toName from action if it appears again, but usually we don't want to remove it. Actually let's do nothing more.
-      return {from:fromName, action, to:toName};
-    }
-
-    /************************************************************
-     * 3) Rendering (same approach as previous Version A code)
-     ************************************************************/
-    let globalParticipants=[];
-    let globalFlows=[];
-
-    function layoutActorsGrid(participants){
-      const layer=document.getElementById("participantsLayer");
-      layer.innerHTML="";
-      if(!participants.length) return;
-
-      const count=participants.length;
-      const cols=Math.ceil(Math.sqrt(count));
-      const rows=Math.ceil(count/cols);
-
-      const marginX=100, marginY=100;
-      const spacingX=(2000-marginX*2)/Math.max(1,cols-1);
-      const spacingY=(1200-marginY*2)/Math.max(1,rows-1);
-
-      for(let i=0;i<count;i++){
-        const p=participants[i];
-        const row=Math.floor(i/cols);
-        const col=i%cols;
-        const x=marginX+col*spacingX;
-        const y=marginY+row*spacingY;
-        p.x=x;
-        p.y=y;
-      }
-
-      participants.forEach(p=>{
-        placeActorDiv(p, layer);
-      });
-    }
-
-    function placeActorDiv(p, container){
-      const div=document.createElement("div");
-      div.className="participant";
-      div.style.left=(p.x-60)+"px";
-      div.style.top =(p.y-60)+"px";
-
-      // Icon
-      const iconSpan=document.createElement("span");
-      iconSpan.className="material-icons";
-      iconSpan.textContent=p.icon;
-      div.appendChild(iconSpan);
-
-      // Name
-      const nameDiv=document.createElement("div");
-      nameDiv.textContent=p.name;
-      div.appendChild(nameDiv);
-
-      // Annotation
-      if(p.annotation){
-        const ann=document.createElement("div");
-        ann.className="participant-annotation";
-        ann.textContent=p.annotation;
-        div.appendChild(ann);
-      }
-
-      // Draggable
-      makeParticipantDraggable(div, p);
-      container.appendChild(div);
-      p.domElement=div;
-    }
-
-    function makeParticipantDraggable(el, participant){
-      let offX=0, offY=0, dragging=false;
-      el.addEventListener("mousedown", e=>{
-        e.preventDefault();
-        dragging=true;
-        offX=e.clientX-el.offsetLeft;
-        offY=e.clientY-el.offsetTop;
-        document.addEventListener("mousemove", onMove);
-        document.addEventListener("mouseup", onUp);
-      });
-      function onMove(e){
-        if(!dragging) return;
-        const left=e.clientX-offX;
-        const top =e.clientY-offY;
-        el.style.left=left+"px";
-        el.style.top =top +"px";
-        participant.x=left+60;
-        participant.y=top+60;
-        renderFlows(globalParticipants, globalFlows);
-      }
-      function onUp(){
-        dragging=false;
-        document.removeEventListener("mousemove",onMove);
-        document.removeEventListener("mouseup",onUp);
-      }
-    }
-
-    /************************************************************
-     * 4) Render the flows with Quadratic Bézier lines, offset labels
-     ************************************************************/
-    const FLOW_COLOURS=["#3f51b5","#f44336","#009688","#ff9800","#9c27b0","#795548","#2196f3","#e91e63"];
-
-    function renderFlows(participants, flows){
-      const svg=document.getElementById("diagramSVG");
-      while(svg.firstChild) svg.removeChild(svg.firstChild);
-      defineArrowMarker(svg);
-
-      flows.forEach((flow,fIndex)=>{
-        const color=FLOW_COLOURS[fIndex%FLOW_COLOURS.length];
-        const flowLabel=`Flow ${flow.flowNumber}: ${flow.title}`;
-        const headingY=40+ fIndex*40;
-        drawFlowTitle(svg, flowLabel, 20, headingY);
-
-        flow.steps.forEach((step, sIndex)=>{
-          const fromP=participants.find(p=>p.name===step.from);
-          const toP  =participants.find(p=>p.name===step.to);
-          if(!fromP||!toP) return;
-
-          if(step.controlX===null||step.controlY===null){
-            step.controlX=(fromP.x+toP.x)/2;
-            step.controlY=(fromP.y+toP.y)/2;
-          }
-
-          // from/to anchors on box edge
-          const fromA=boxEdgeIntersection(step.controlX, step.controlY, fromP.x, fromP.y,60);
-          const toA  =boxEdgeIntersection(step.controlX, step.controlY, toP.x, toP.y,60);
-
-          // group for arrow
-          const arrowG=document.createElementNS("http://www.w3.org/2000/svg","g");
-          svg.appendChild(arrowG);
-
-          // path
-          const pathEl=document.createElementNS("http://www.w3.org/2000/svg","path");
-          pathEl.setAttribute("fill","none");
-          pathEl.setAttribute("stroke",color);
-          pathEl.setAttribute("stroke-width","2");
-          pathEl.setAttribute("marker-end","url(#arrowMarker)");
-          arrowG.appendChild(pathEl);
-
-          // function to update path & labels
-          function updatePath(){
-            const d=`M ${fromA.x},${fromA.y}
-                     Q ${step.controlX},${step.controlY}
-                       ${toA.x},${toA.y}`;
-            pathEl.setAttribute("d", d);
-          }
-
-          updatePath();
-
-          // label group
-          const labelG=document.createElementNS("http://www.w3.org/2000/svg","g");
-          arrowG.appendChild(labelG);
-
-          // If sIndex===0 => circle for flowNumber near fromA
-          if(sIndex===0){
-            const dx=step.controlX-fromA.x, dy=step.controlY-fromA.y;
-            const n=rotate90({x:dx,y:dy});
-            normalizeInPlace(n);
-            const offset=20;
-            const circPos={
-              x: fromA.x + n.x*offset,
-              y: fromA.y + n.y*offset
-            };
-            const cEl=document.createElementNS("http://www.w3.org/2000/svg","circle");
-            cEl.classList.add("step-number-circle");
-            cEl.setAttribute("cx",circPos.x);
-            cEl.setAttribute("cy",circPos.y);
-            cEl.setAttribute("r","10");
-            labelG.appendChild(cEl);
-
-            const tEl=document.createElementNS("http://www.w3.org/2000/svg","text");
-            tEl.classList.add("step-number-text");
-            tEl.setAttribute("x",circPos.x);
-            tEl.setAttribute("y",circPos.y);
-            tEl.textContent=String(flow.flowNumber);
-            labelG.appendChild(tEl);
-          }
-
-          // action label offset
-          const mid=quadraticBezierPoint(0.5, fromA,{x:step.controlX,y:step.controlY}, toA);
-          const deriv=quadraticBezierDerivative(0.5, fromA,{x:step.controlX,y:step.controlY}, toA);
-          const normal=rotate90(deriv);
-          normalizeInPlace(normal);
-          const labelOffset=15;
-          const labelPos={
-            x: mid.x+normal.x*labelOffset,
-            y: mid.y+normal.y*labelOffset
-          };
-          // measure action text
-          const measureAct=measureSVGText(step.action,14);
-          const lw=measureAct.width+8, lh=measureAct.height+4;
-          const lx=labelPos.x-lw/2, ly=labelPos.y-lh/2;
-
-          const boxRect=document.createElementNS("http://www.w3.org/2000/svg","rect");
-          boxRect.classList.add("label-box");
-          boxRect.setAttribute("x",lx);
-          boxRect.setAttribute("y",ly);
-          boxRect.setAttribute("width",lw);
-          boxRect.setAttribute("height",lh);
-          labelG.appendChild(boxRect);
-
-          const textEl=document.createElementNS("http://www.w3.org/2000/svg","text");
-          textEl.classList.add("label-text");
-          textEl.setAttribute("x",labelPos.x);
-          textEl.setAttribute("y", labelPos.y+(measureAct.baseline- measureAct.height/2));
-          textEl.textContent=step.action;
-          labelG.appendChild(textEl);
-
-          // step annotation => bracket offset further
-          let annG=null;
-          if(step.annotation){
-            annG=document.createElementNS("http://www.w3.org/2000/svg","g");
-            arrowG.appendChild(annG);
-            const annDer=deriv;
-            const annN=rotate90(annDer);
-            normalizeInPlace(annN);
-            const annOff=40;
-            const annPos={
-              x: mid.x+annN.x*annOff,
-              y: mid.y+annN.y*annOff
-            };
-            const bracketTxt=`[${step.annotation}]`;
-            const measureAnn=measureSVGText(bracketTxt,12);
-            const annW=measureAnn.width+8, annH=measureAnn.height+6;
-            const annX=annPos.x-annW/2, annY=annPos.y-annH/2;
-
-            const aRect=document.createElementNS("http://www.w3.org/2000/svg","rect");
-            aRect.classList.add("callout-box");
-            aRect.setAttribute("x",annX);
-            aRect.setAttribute("y",annY);
-            aRect.setAttribute("width",annW);
-            aRect.setAttribute("height",annH);
-            aRect.setAttribute("rx","3");
-            aRect.setAttribute("ry","3");
-            annG.appendChild(aRect);
-
-            const aText=document.createElementNS("http://www.w3.org/2000/svg","text");
-            aText.classList.add("callout-text");
-            aText.setAttribute("x",annPos.x);
-            aText.setAttribute("y",annPos.y + (measureAnn.baseline - measureAnn.height/2));
-            aText.textContent=bracketTxt;
-            annG.appendChild(aText);
-          }
-
-          // Draggable handle
-          const handle=document.createElementNS("http://www.w3.org/2000/svg","circle");
-          handle.setAttribute("cx", step.controlX);
-          handle.setAttribute("cy", step.controlY);
-          handle.setAttribute("r","6");
-          handle.classList.add("control-handle");
-          arrowG.appendChild(handle);
-
-          // update function if participant or handle moves
-          function refreshLayout(){
-            // recalc fromA, toA
-            const fA=boxEdgeIntersection(step.controlX,step.controlY, fromP.x,fromP.y,60);
-            const tA=boxEdgeIntersection(step.controlX,step.controlY, toP.x,toP.y,60);
-
-            const d=`M ${fA.x},${fA.y} Q ${step.controlX},${step.controlY} ${tA.x},${tA.y}`;
-            pathEl.setAttribute("d", d);
-
-            // first-step circle
-            if(sIndex===0){
-              const ddx=step.controlX-fA.x, ddy=step.controlY-fA.y;
-              const n=rotate90({x:ddx,y:ddy});
-              normalizeInPlace(n);
-              const cof=20;
-              const cPos={
-                x: fA.x+n.x*cof,
-                y: fA.y+n.y*cof
-              };
-              const cCircle=labelG.querySelector("circle.step-number-circle");
-              const cText=labelG.querySelector("text.step-number-text");
-              if(cCircle){
-                cCircle.setAttribute("cx", cPos.x);
-                cCircle.setAttribute("cy", cPos.y);
-              }
-              if(cText){
-                cText.setAttribute("x", cPos.x);
-                cText.setAttribute("y", cPos.y);
-              }
-            }
-
-            // midpoint
-            const m=quadraticBezierPoint(0.5, fA,{x:step.controlX,y:step.controlY}, tA);
-            const dv=quadraticBezierDerivative(0.5, fA,{x:step.controlX,y:step.controlY}, tA);
-            const nor=rotate90(dv);
-            normalizeInPlace(nor);
-            const lblOff=15;
-            const lPos={
-              x: m.x+ nor.x*lblOff,
-              y: m.y+ nor.y*lblOff
-            };
-
-            // update action label
-            const labelBox=labelG.querySelector("rect.label-box");
-            const labelTxt=labelG.querySelector("text.label-text");
-            if(labelBox && labelTxt){
-              const txt= labelTxt.textContent||"";
-              const meas=measureSVGText(txt,14);
-              const lw=meas.width+8, lh=meas.height+4;
-              const lx=lPos.x-lw/2, ly=lPos.y-lh/2;
-              labelBox.setAttribute("x",lx);
-              labelBox.setAttribute("y",ly);
-              labelBox.setAttribute("width",lw);
-              labelBox.setAttribute("height",lh);
-              labelTxt.setAttribute("x",lPos.x);
-              labelTxt.setAttribute("y", lPos.y + (meas.baseline- meas.height/2));
-            }
-
-            // annotation?
-            if(step.annotation && annG){
-              const annD= dv;
-              const annN= rotate90(annD);
-              normalizeInPlace(annN);
-              const aOff=40;
-              const aPos={
-                x: m.x+ annN.x*aOff,
-                y: m.y+ annN.y*aOff
-              };
-              const bracketTxt=`[${step.annotation}]`;
-              const annRect=annG.querySelector("rect.callout-box");
-              const annText=annG.querySelector("text.callout-text");
-              if(annRect && annText){
-                const meas=measureSVGText(bracketTxt,12);
-                const w=meas.width+8, h=meas.height+6;
-                const ax=aPos.x-w/2, ay=aPos.y-h/2;
-                annRect.setAttribute("x", ax);
-                annRect.setAttribute("y", ay);
-                annRect.setAttribute("width", w);
-                annRect.setAttribute("height", h);
-                annText.setAttribute("x", aPos.x);
-                annText.setAttribute("y", aPos.y + (meas.baseline - meas.height/2));
-              }
-            }
-          }
-
-          // refresh once
-          refreshLayout();
-
-          // Drag handle
-          let dragging=false, dx=0, dy=0;
-          handle.addEventListener("mousedown", e=>{
-            e.preventDefault();
-            dragging=true;
-            dx=e.clientX-step.controlX;
-            dy=e.clientY-step.controlY;
-            document.addEventListener("mousemove",onMove);
-            document.addEventListener("mouseup",onUp);
+        const MAX_SHOW = 600;
+        let count = 0;
+        for (let i = 0; i < filtered.length && count < MAX_SHOW; i++) {
+          const icon = filtered[i];
+          const div = document.createElement("div");
+          div.className = "icon-picker-item";
+          div.innerHTML = `
+            <span class="material-icons">${icon.name}</span>
+            <small>${icon.name}</small>
+          `;
+          div.addEventListener("click", () => {
+            navigator.clipboard.writeText(icon.name);
+            alert("Copied icon name: " + icon.name);
           });
-          function onMove(e){
-            if(!dragging)return;
-            step.controlX=e.clientX-dx;
-            step.controlY=e.clientY-dy;
+          grid.appendChild(div);
+          count++;
+        }
+        if (count === MAX_SHOW && filtered.length > MAX_SHOW) {
+          const info = document.createElement("div");
+          info.textContent = `Showing ${MAX_SHOW} of ${filtered.length} matches. Please refine your search.`;
+          grid.appendChild(info);
+        }
+      }
+
+      async function setupIconPicker() {
+        try {
+          await loadAllMaterialIcons();
+          renderIconPicker("");
+          const search = document.getElementById("iconSearch");
+          search.addEventListener("input", () =>
+            renderIconPicker(search.value)
+          );
+        } catch (err) {
+          console.error("Failed to load icons:", err);
+          alert("Could not load Material Icons list.");
+        }
+      }
+
+      function toggleIconPicker() {
+        const picker = document.getElementById("iconPicker");
+        picker.style.display =
+          picker.style.display === "block" ? "none" : "block";
+      }
+
+      /************************************************************
+       * 2) Parsing the domain story syntax
+       ************************************************************/
+      // We'll store the original line for each flow step so we can display it unchanged.
+      function parseDomainStory(input) {
+        const lines = input
+          .split("\n")
+          .map((l) => l.trimEnd())
+          .filter(Boolean);
+        let actorsSection = false;
+        let flows = [];
+        let participants = [];
+        let currentFlow = null;
+        let flowCounter = 0;
+
+        lines.forEach((line) => {
+          // Check if we're entering the actor definition section
+          if (/^#\s+Actors/i.test(line)) {
+            actorsSection = true;
+            return;
+          }
+          // Check if we're starting a new flow
+          if (line.startsWith("#")) {
+            actorsSection = false;
+            flowCounter++;
+            const title = line.replace(/^#+\s*/, "").trim();
+            currentFlow = {
+              flowNumber: flowCounter,
+              title,
+              steps: [],
+            };
+            flows.push(currentFlow);
+            return;
+          }
+
+          if (actorsSection) {
+            // "* Name (icon) [optional annotation]"
+            if (line.startsWith("*")) {
+              const bracketMatch = line.match(/\[(.*?)\]\s*$/);
+              let annotation = null;
+              let lineNoAnn = line;
+              if (bracketMatch) {
+                annotation = bracketMatch[1].trim();
+                lineNoAnn = line.replace(bracketMatch[0], "").trim();
+              }
+              const match = lineNoAnn.match(/^\*\s+(.*?)\s*\((.*?)\)$/);
+              if (match) {
+                const name = match[1].trim();
+                const icon = match[2].trim();
+                participants.push({ name, icon, annotation });
+              }
+            }
+          } else {
+            if (!currentFlow) return;
+            // Steps: "1. FromActor ActionWords ToActor [annotation?]"
+            const stepMatch = line.match(/^(\d+)\.\s+(.*)$/);
+            if (stepMatch) {
+              const stepNumber = stepMatch[1];
+              const stepText = stepMatch[2]; // Keep full text (minus "1."), so we add it into originalLine
+              const bracketMatch = stepText.match(/\[(.*?)\]\s*$/);
+
+              let annotation = null;
+              let stepMainText = stepText;
+              if (bracketMatch) {
+                annotation = bracketMatch[1].trim();
+                stepMainText = stepText.replace(bracketMatch[0], "").trim();
+              }
+
+              // We attempt to identify from, action, to.
+              const { from, action, to } = extractStepFromActionTo(
+                stepMainText,
+                participants.map((p) => p.name)
+              );
+
+              currentFlow.steps.push({
+                originalLine: stepNumber + ". " + stepText, // store entire line
+                from,
+                action,
+                to,
+                annotation,
+                controlX: null,
+                controlY: null,
+              });
+            }
+          }
+        });
+        return { participants, flows };
+      }
+
+      // We do a best-effort attempt to find the from/to participants.
+      function extractStepFromActionTo(line, participantNames) {
+        let found = [];
+        participantNames.forEach((pName) => {
+          const i = line.indexOf(pName);
+          if (i >= 0) found.push({ name: pName, index: i });
+        });
+        if (found.length < 2) {
+          // fallback: from= first word, action= middle, to= last word
+          const tokens = line.split(/\s+/);
+          if (tokens.length >= 3) {
+            return {
+              from: tokens[0],
+              action: tokens.slice(1, tokens.length - 1).join(" "),
+              to: tokens[tokens.length - 1],
+            };
+          } else {
+            return { from: line, action: "", to: "" };
+          }
+        }
+        found.sort((a, b) => a.index - b.index);
+        const fromName = found[0].name;
+        const toName = found[found.length - 1].name;
+        const fromPos = line.indexOf(fromName);
+        const afterFrom = fromPos + fromName.length;
+        const toPos = line.lastIndexOf(toName);
+        const action = line.substring(afterFrom, toPos).trim();
+        return { from: fromName, action, to: toName };
+      }
+
+      /************************************************************
+       * 3) Preserve positions & manage participants
+       *
+       * We'll keep a global map (by participant name). If a new
+       * participant is detected, we give it a position. If one
+       * is removed, we remove its DOM. If an existing participant
+       * remains, we keep its position and update annotation/icon.
+       ************************************************************/
+      let existingParticipantsByName = {};
+
+      function updateParticipants(parsedParticipants) {
+        // 1. Remove participants that no longer exist
+        const newNames = new Set(parsedParticipants.map((p) => p.name));
+        for (const oldName in existingParticipantsByName) {
+          if (!newNames.has(oldName)) {
+            const oldP = existingParticipantsByName[oldName];
+            if (oldP.domElement) {
+              oldP.domElement.remove();
+            }
+            delete existingParticipantsByName[oldName];
+          }
+        }
+
+        // 2. For each parsed participant, merge or create
+        parsedParticipants.forEach((p) => {
+          if (existingParticipantsByName[p.name]) {
+            // Update icon/annotation but keep position
+            const existing = existingParticipantsByName[p.name];
+            existing.icon = p.icon;
+            existing.annotation = p.annotation;
+          } else {
+            // Create a new record with no position yet
+            existingParticipantsByName[p.name] = {
+              name: p.name,
+              icon: p.icon,
+              annotation: p.annotation,
+              x: null,
+              y: null,
+              domElement: null,
+            };
+          }
+        });
+
+        // 3. Assign positions to any that don't have them, in a circle layout
+        //    around the centre. We'll space them out by angle based on how many
+        //    participants currently don't have a position.
+        const newUnplaced = Object.values(existingParticipantsByName).filter(
+          (p) => p.x === null || p.y === null
+        );
+        if (newUnplaced.length > 0) {
+          const centre = { x: 1000, y: 600 };
+          const radius = 400;
+          const angleStep = (2 * Math.PI) / newUnplaced.length;
+
+          newUnplaced.forEach((p, i) => {
+            const angle = i * angleStep;
+            p.x = centre.x + Math.cos(angle) * radius;
+            p.y = centre.y + Math.sin(angle) * radius;
+          });
+        }
+
+        // 4. Ensure each participant has a DOM element
+        for (const name in existingParticipantsByName) {
+          const p = existingParticipantsByName[name];
+          if (!p.domElement) {
+            createParticipantDOM(p);
+          } else {
+            // If it exists, update annotation text, icon, etc
+            refreshParticipantDOM(p);
+          }
+        }
+      }
+
+      function createParticipantDOM(participant) {
+        const layer = document.getElementById("participantsLayer");
+        const div = document.createElement("div");
+        div.className = "participant";
+        div.style.left = participant.x - 60 + "px";
+        div.style.top = participant.y - 60 + "px";
+
+        // Icon
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "material-icons";
+        iconSpan.textContent = participant.icon;
+        div.appendChild(iconSpan);
+
+        // Name
+        const nameDiv = document.createElement("div");
+        nameDiv.textContent = participant.name;
+        div.appendChild(nameDiv);
+
+        // Annotation
+        if (participant.annotation) {
+          const ann = document.createElement("div");
+          ann.className = "participant-annotation";
+          ann.textContent = participant.annotation;
+          div.appendChild(ann);
+        }
+
+        makeParticipantDraggable(div, participant);
+        layer.appendChild(div);
+
+        participant.domElement = div;
+      }
+
+      function refreshParticipantDOM(participant) {
+        const el = participant.domElement;
+        if (!el) return;
+        // Clear child nodes
+        el.innerHTML = "";
+
+        // Rebuild
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "material-icons";
+        iconSpan.textContent = participant.icon;
+        el.appendChild(iconSpan);
+
+        const nameDiv = document.createElement("div");
+        nameDiv.textContent = participant.name;
+        el.appendChild(nameDiv);
+
+        if (participant.annotation) {
+          const ann = document.createElement("div");
+          ann.className = "participant-annotation";
+          ann.textContent = participant.annotation;
+          el.appendChild(ann);
+        }
+
+        // Position
+        el.style.left = participant.x - 60 + "px";
+        el.style.top = participant.y - 60 + "px";
+      }
+
+      function makeParticipantDraggable(el, participant) {
+        let offX = 0,
+          offY = 0,
+          dragging = false;
+        el.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          dragging = true;
+          offX = e.clientX - el.offsetLeft;
+          offY = e.clientY - el.offsetTop;
+          document.addEventListener("mousemove", onMove);
+          document.addEventListener("mouseup", onUp);
+        });
+        function onMove(e) {
+          if (!dragging) return;
+          const left = e.clientX - offX;
+          const top = e.clientY - offY;
+          el.style.left = left + "px";
+          el.style.top = top + "px";
+          participant.x = left + 60;
+          participant.y = top + 60;
+          renderFlows(Object.values(existingParticipantsByName), globalFlows);
+        }
+        function onUp() {
+          dragging = false;
+          document.removeEventListener("mousemove", onMove);
+          document.removeEventListener("mouseup", onUp);
+        }
+      }
+
+      /************************************************************
+       * 4) Rendering flows
+       * We offset lines to reduce overlap. Each step in a flow
+       * is given a small offset in the normal direction to help
+       * separate them visually.
+       ************************************************************/
+      let globalFlows = [];
+
+      const FLOW_COLOURS = [
+        "#3f51b5",
+        "#f44336",
+        "#009688",
+        "#ff9800",
+        "#9c27b0",
+        "#795548",
+        "#2196f3",
+        "#e91e63",
+      ];
+
+      function renderFlows(participants, flows) {
+        const svg = document.getElementById("diagramSVG");
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        defineArrowMarker(svg);
+
+        flows.forEach((flow, fIndex) => {
+          const colour = FLOW_COLOURS[fIndex % FLOW_COLOURS.length];
+          const flowLabel = `Flow ${flow.flowNumber}: ${flow.title}`;
+          // Flow title
+          drawFlowTitle(svg, flowLabel, 20, 40 + fIndex * 40);
+
+          // For a small offset so lines don't stack exactly, we shift each step
+          // in the normal direction by stepOffsetFactor * (sIndex - midIndex).
+          const stepCount = flow.steps.length;
+          const midIndex = (stepCount - 1) / 2;
+          const stepOffsetFactor = 40; // controls how far lines are offset
+
+          flow.steps.forEach((step, sIndex) => {
+            const fromP = participants.find((p) => p.name === step.from);
+            const toP = participants.find((p) => p.name === step.to);
+
+            if (!fromP || !toP) return;
+
+            // If first time, compute initial control point
+            if (step.controlX === null || step.controlY === null) {
+              // midpoint
+              const mx = (fromP.x + toP.x) / 2;
+              const my = (fromP.y + toP.y) / 2;
+              // direction from -> to
+              const dx = toP.x - fromP.x;
+              const dy = toP.y - fromP.y;
+              // normal
+              const n = rotate90({ x: dx, y: dy });
+              normalizeInPlace(n);
+
+              const offset = (sIndex - midIndex) * stepOffsetFactor;
+              step.controlX = mx + n.x * offset;
+              step.controlY = my + n.y * offset;
+            }
+
+            // from/to anchors on box edge
+            const fromA = boxEdgeIntersection(
+              step.controlX,
+              step.controlY,
+              fromP.x,
+              fromP.y,
+              60
+            );
+            const toA = boxEdgeIntersection(
+              step.controlX,
+              step.controlY,
+              toP.x,
+              toP.y,
+              60
+            );
+
+            // group for arrow
+            const arrowG = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "g"
+            );
+            svg.appendChild(arrowG);
+
+            // path
+            const pathEl = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "path"
+            );
+            pathEl.setAttribute("fill", "none");
+            pathEl.setAttribute("stroke", colour);
+            pathEl.setAttribute("stroke-width", "2");
+            pathEl.setAttribute("marker-end", "url(#arrowMarker)");
+            arrowG.appendChild(pathEl);
+
+            function updatePath() {
+              const d = `M ${fromA.x},${fromA.y}
+                         Q ${step.controlX},${step.controlY}
+                           ${toA.x},${toA.y}`;
+              pathEl.setAttribute("d", d);
+            }
+            updatePath();
+
+            // label group
+            const labelG = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "g"
+            );
+            arrowG.appendChild(labelG);
+
+            // Circle for the flow number on the first step
+            if (sIndex === 0) {
+              const dx = step.controlX - fromA.x;
+              const dy = step.controlY - fromA.y;
+              const n = rotate90({ x: dx, y: dy });
+              normalizeInPlace(n);
+              const circleOffset = 20;
+              const circPos = {
+                x: fromA.x + n.x * circleOffset,
+                y: fromA.y + n.y * circleOffset,
+              };
+
+              const cEl = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "circle"
+              );
+              cEl.classList.add("step-number-circle");
+              cEl.setAttribute("cx", circPos.x);
+              cEl.setAttribute("cy", circPos.y);
+              cEl.setAttribute("r", "10");
+              labelG.appendChild(cEl);
+
+              const tEl = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              tEl.classList.add("step-number-text");
+              tEl.setAttribute("x", circPos.x);
+              tEl.setAttribute("y", circPos.y);
+              tEl.textContent = String(flow.flowNumber);
+              labelG.appendChild(tEl);
+            }
+
+            // Action label
+            const deriv = quadraticBezierDerivative(
+              0.5,
+              fromA,
+              { x: step.controlX, y: step.controlY },
+              toA
+            );
+            const normal = rotate90(deriv);
+            normalizeInPlace(normal);
+
+            const mid = quadraticBezierPoint(
+              0.5,
+              fromA,
+              { x: step.controlX, y: step.controlY },
+              toA
+            );
+            const labelOffset = 15;
+            const labelPos = {
+              x: mid.x + normal.x * labelOffset,
+              y: mid.y + normal.y * labelOffset,
+            };
+            const measureAct = measureSVGText(step.action, 14);
+            const lw = measureAct.width + 8;
+            const lh = measureAct.height + 4;
+            const lx = labelPos.x - lw / 2;
+            const ly = labelPos.y - lh / 2;
+
+            const boxRect = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "rect"
+            );
+            boxRect.classList.add("label-box");
+            boxRect.setAttribute("x", lx);
+            boxRect.setAttribute("y", ly);
+            boxRect.setAttribute("width", lw);
+            boxRect.setAttribute("height", lh);
+            labelG.appendChild(boxRect);
+
+            const textEl = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "text"
+            );
+            textEl.classList.add("label-text");
+            textEl.setAttribute("x", labelPos.x);
+            textEl.setAttribute(
+              "y",
+              labelPos.y + (measureAct.baseline - measureAct.height / 2)
+            );
+            textEl.textContent = step.action;
+            labelG.appendChild(textEl);
+
+            // Annotation?
+            let annG = null;
+            if (step.annotation) {
+              annG = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "g"
+              );
+              arrowG.appendChild(annG);
+
+              const annN = rotate90(deriv);
+              normalizeInPlace(annN);
+              const annOff = 40;
+              const annPos = {
+                x: mid.x + annN.x * annOff,
+                y: mid.y + annN.y * annOff,
+              };
+              const bracketTxt = `[${step.annotation}]`;
+              const measureAnn = measureSVGText(bracketTxt, 12);
+              const annW = measureAnn.width + 8;
+              const annH = measureAnn.height + 6;
+              const annX = annPos.x - annW / 2;
+              const annY = annPos.y - annH / 2;
+
+              const aRect = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "rect"
+              );
+              aRect.classList.add("callout-box");
+              aRect.setAttribute("x", annX);
+              aRect.setAttribute("y", annY);
+              aRect.setAttribute("width", annW);
+              aRect.setAttribute("height", annH);
+              aRect.setAttribute("rx", "3");
+              aRect.setAttribute("ry", "3");
+              annG.appendChild(aRect);
+
+              const aText = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              aText.classList.add("callout-text");
+              aText.setAttribute("x", annPos.x);
+              aText.setAttribute(
+                "y",
+                annPos.y + (measureAnn.baseline - measureAnn.height / 2)
+              );
+              aText.textContent = bracketTxt;
+              annG.appendChild(aText);
+            }
+
+            // Draggable handle
+            const handle = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "circle"
+            );
             handle.setAttribute("cx", step.controlX);
             handle.setAttribute("cy", step.controlY);
-            refreshLayout();
-          }
-          function onUp(){
-            dragging=false;
-            document.removeEventListener("mousemove",onMove);
-            document.removeEventListener("mouseup",onUp);
-          }
+            handle.setAttribute("r", "6");
+            handle.classList.add("control-handle");
+            arrowG.appendChild(handle);
+
+            let dragging = false;
+            let hx = 0,
+              hy = 0;
+            handle.addEventListener("mousedown", (e) => {
+              e.preventDefault();
+              dragging = true;
+              hx = e.clientX - step.controlX;
+              hy = e.clientY - step.controlY;
+              document.addEventListener("mousemove", onMove);
+              document.addEventListener("mouseup", onUp);
+            });
+            function onMove(e) {
+              if (!dragging) return;
+              step.controlX = e.clientX - hx;
+              step.controlY = e.clientY - hy;
+              handle.setAttribute("cx", step.controlX);
+              handle.setAttribute("cy", step.controlY);
+              refreshLayout();
+            }
+            function onUp() {
+              dragging = false;
+              document.removeEventListener("mousemove", onMove);
+              document.removeEventListener("mouseup", onUp);
+            }
+
+            function refreshLayout() {
+              const fA = boxEdgeIntersection(
+                step.controlX,
+                step.controlY,
+                fromP.x,
+                fromP.y,
+                60
+              );
+              const tA = boxEdgeIntersection(
+                step.controlX,
+                step.controlY,
+                toP.x,
+                toP.y,
+                60
+              );
+              const d = `M ${fA.x},${fA.y}
+                         Q ${step.controlX},${step.controlY}
+                           ${tA.x},${tA.y}`;
+              pathEl.setAttribute("d", d);
+
+              // Recompute midpoint for label
+              const dv = quadraticBezierDerivative(
+                0.5,
+                fA,
+                { x: step.controlX, y: step.controlY },
+                tA
+              );
+              const nor = rotate90(dv);
+              normalizeInPlace(nor);
+              const m = quadraticBezierPoint(
+                0.5,
+                fA,
+                { x: step.controlX, y: step.controlY },
+                tA
+              );
+
+              // If first step => circle for flow number
+              if (sIndex === 0) {
+                const ddx = step.controlX - fA.x;
+                const ddy = step.controlY - fA.y;
+                const n = rotate90({ x: ddx, y: ddy });
+                normalizeInPlace(n);
+                const cof = 20;
+                const cPos = {
+                  x: fA.x + n.x * cof,
+                  y: fA.y + n.y * cof,
+                };
+                const cCircle = labelG.querySelector(
+                  "circle.step-number-circle"
+                );
+                const cText = labelG.querySelector("text.step-number-text");
+                if (cCircle) {
+                  cCircle.setAttribute("cx", cPos.x);
+                  cCircle.setAttribute("cy", cPos.y);
+                }
+                if (cText) {
+                  cText.setAttribute("x", cPos.x);
+                  cText.setAttribute("y", cPos.y);
+                }
+              }
+
+              // Action label
+              const labelOffset = 15;
+              const lPos = {
+                x: m.x + nor.x * labelOffset,
+                y: m.y + nor.y * labelOffset,
+              };
+              const labelBox = labelG.querySelector("rect.label-box");
+              const labelTxt = labelG.querySelector("text.label-text");
+              if (labelBox && labelTxt) {
+                const txt = labelTxt.textContent || "";
+                const meas = measureSVGText(txt, 14);
+                const lw = meas.width + 8;
+                const lh = meas.height + 4;
+                const lx = lPos.x - lw / 2;
+                const ly = lPos.y - lh / 2;
+                labelBox.setAttribute("x", lx);
+                labelBox.setAttribute("y", ly);
+                labelBox.setAttribute("width", lw);
+                labelBox.setAttribute("height", lh);
+                labelTxt.setAttribute("x", lPos.x);
+                labelTxt.setAttribute(
+                  "y",
+                  lPos.y + (meas.baseline - meas.height / 2)
+                );
+              }
+
+              // Annotation
+              if (step.annotation && annG) {
+                const annRect = annG.querySelector("rect.callout-box");
+                const annText = annG.querySelector("text.callout-text");
+                if (annRect && annText) {
+                  const bracketTxt = `[${step.annotation}]`;
+                  const meas = measureSVGText(bracketTxt, 12);
+                  const annW = meas.width + 8;
+                  const annH = meas.height + 6;
+                  const annOff = 40;
+                  const annPos = {
+                    x: m.x + nor.x * annOff,
+                    y: m.y + nor.y * annOff,
+                  };
+                  const ax = annPos.x - annW / 2;
+                  const ay = annPos.y - annH / 2;
+                  annRect.setAttribute("x", ax);
+                  annRect.setAttribute("y", ay);
+                  annRect.setAttribute("width", annW);
+                  annRect.setAttribute("height", annH);
+                  annText.setAttribute("x", annPos.x);
+                  annText.setAttribute(
+                    "y",
+                    annPos.y + (meas.baseline - meas.height / 2)
+                  );
+                }
+              }
+            }
+          });
         });
-      });
-    }
-
-    function drawFlowTitle(svg, text, x, y){
-      const t=document.createElementNS("http://www.w3.org/2000/svg","text");
-      t.setAttribute("x", x);
-      t.setAttribute("y", y);
-      t.classList.add("flow-title");
-      t.textContent=text;
-      svg.appendChild(t);
-    }
-
-    function defineArrowMarker(svg){
-      if(!document.getElementById("arrowMarker")){
-        const defs=document.createElementNS("http://www.w3.org/2000/svg","defs");
-        const marker=document.createElementNS("http://www.w3.org/2000/svg","marker");
-        marker.setAttribute("id","arrowMarker");
-        marker.setAttribute("markerWidth","10");
-        marker.setAttribute("markerHeight","10");
-        marker.setAttribute("refX","6");
-        marker.setAttribute("refY","3");
-        marker.setAttribute("orient","auto");
-        const path=document.createElementNS("http://www.w3.org/2000/svg","path");
-        path.setAttribute("d","M0,0 L0,6 L6,3 Z");
-        path.setAttribute("fill","#333");
-        marker.appendChild(path);
-        defs.appendChild(marker);
-        svg.appendChild(defs);
       }
-    }
 
-    // Box edge intersection
-    function boxEdgeIntersection(cx,cy, px,py, halfBox){
-      if(cx===px && cy===py) return {x:px,y:py};
-      const L=px-halfBox, R=px+halfBox, T=py-halfBox,B=py+halfBox;
-      return findBoxBoundary(cx,cy, px,py, L,T,R,B);
-    }
-    function findBoxBoundary(cx,cy, px,py, L,T,R,B){
-      const dx=px-cx, dy=py-cy;
-      let tMin=Infinity; let result={x:px,y:py};
+      function drawFlowTitle(svg, text, x, y) {
+        const t = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        t.setAttribute("x", x);
+        t.setAttribute("y", y);
+        t.classList.add("flow-title");
+        t.textContent = text;
+        svg.appendChild(t);
+      }
 
-      function testV(xVal){
-        if(Math.abs(dx)<1e-9)return;
-        const t=(xVal-cx)/dx;
-        if(t>0 && t<tMin){
-          const yVal=cy+t*dy;
-          if(yVal>=T && yVal<=B){
-            tMin=t; result={x:xVal,y:yVal};
-          }
+      function defineArrowMarker(svg) {
+        if (!document.getElementById("arrowMarker")) {
+          const defs = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "defs"
+          );
+          const marker = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "marker"
+          );
+          marker.setAttribute("id", "arrowMarker");
+          marker.setAttribute("markerWidth", "10");
+          marker.setAttribute("markerHeight", "10");
+          marker.setAttribute("refX", "6");
+          marker.setAttribute("refY", "3");
+          marker.setAttribute("orient", "auto");
+          const path = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+          );
+          path.setAttribute("d", "M0,0 L0,6 L6,3 Z");
+          path.setAttribute("fill", "#333");
+          marker.appendChild(path);
+          defs.appendChild(marker);
+          svg.appendChild(defs);
         }
       }
-      function testH(yVal){
-        if(Math.abs(dy)<1e-9)return;
-        const t=(yVal-cy)/dy;
-        if(t>0 && t<tMin){
-          const xVal=cx+t*dx;
-          if(xVal>=L && xVal<=R){
-            tMin=t; result={x:xVal,y:yVal};
+
+      // Finds the edge intersection of a box around (px,py) with halfBox side.
+      function boxEdgeIntersection(cx, cy, px, py, halfBox) {
+        if (cx === px && cy === py) return { x: px, y: py };
+        const L = px - halfBox;
+        const R = px + halfBox;
+        const T = py - halfBox;
+        const B = py + halfBox;
+        return findBoxBoundary(cx, cy, px, py, L, T, R, B);
+      }
+
+      function findBoxBoundary(cx, cy, px, py, L, T, R, B) {
+        const dx = px - cx;
+        const dy = py - cy;
+        let tMin = Infinity;
+        let result = { x: px, y: py };
+
+        function testV(xVal) {
+          if (Math.abs(dx) < 1e-9) return;
+          const t = (xVal - cx) / dx;
+          if (t > 0 && t < tMin) {
+            const yVal = cy + t * dy;
+            if (yVal >= T && yVal <= B) {
+              tMin = t;
+              result = { x: xVal, y: yVal };
+            }
           }
         }
+        function testH(yVal) {
+          if (Math.abs(dy) < 1e-9) return;
+          const t = (yVal - cy) / dy;
+          if (t > 0 && t < tMin) {
+            const xVal = cx + t * dx;
+            if (xVal >= L && xVal <= R) {
+              tMin = t;
+              result = { x: xVal, y: yVal };
+            }
+          }
+        }
+        testV(L);
+        testV(R);
+        testH(T);
+        testH(B);
+        return result;
       }
-      testV(L); testV(R); testH(T); testH(B);
-      return result;
-    }
 
-    // Quadratic Bézier
-    function quadraticBezierPoint(t,p0,p1,p2){
-      const mt=1-t;
-      const x=mt*mt*p0.x + 2*mt*t*p1.x + t*t*p2.x;
-      const y=mt*mt*p0.y + 2*mt*t*p1.y + t*t*p2.y;
-      return {x,y};
-    }
-    function quadraticBezierDerivative(t,p0,p1,p2){
-      const x=2*(1-t)*(p1.x-p0.x)+2*t*(p2.x-p1.x);
-      const y=2*(1-t)*(p1.y-p0.y)+2*t*(p2.y-p1.y);
-      return {x,y};
-    }
-    function rotate90(v){return {x:-v.y,y:v.x};}
-    function normalizeInPlace(v){
-      const len=Math.sqrt(v.x*v.x+v.y*v.y);
-      if(len>1e-9){ v.x/=len; v.y/=len; }
-    }
+      // Quadratic Bezier helper
+      function quadraticBezierPoint(t, p0, p1, p2) {
+        const mt = 1 - t;
+        const x = mt * mt * p0.x + 2 * mt * t * p1.x + t * t * p2.x;
+        const y = mt * mt * p0.y + 2 * mt * t * p1.y + t * t * p2.y;
+        return { x, y };
+      }
+      function quadraticBezierDerivative(t, p0, p1, p2) {
+        const x = 2 * (1 - t) * (p1.x - p0.x) + 2 * t * (p2.x - p1.x);
+        const y = 2 * (1 - t) * (p1.y - p0.y) + 2 * t * (p2.y - p1.y);
+        return { x, y };
+      }
 
-    /************************************************************
-     * 5) Text Measurement
-     ************************************************************/
-    function measureSVGText(str, fontSize=14){
-      const t=document.getElementById("hiddenMeasureText");
-      t.setAttribute("font-size",String(fontSize));
-      const lines=str.split("\n");
-      let maxWidth=0, totalHeight=0;
-      const lineHeight=fontSize+2;
-      lines.forEach(line=>{
-        if(!line) line=" ";
-        t.textContent=line;
-        const bbox=t.getBBox();
-        if(bbox.width>maxWidth) maxWidth=bbox.width;
-        totalHeight+=lineHeight;
-      });
-      return {
-        width:maxWidth,
-        height:totalHeight,
-        baseline:fontSize
-      };
-    }
+      function rotate90(v) {
+        return { x: -v.y, y: v.x };
+      }
 
-    /************************************************************
-     * 6) Step List & Icon Key
-     ************************************************************/
-    function renderStepList(flows){
-      const container=document.getElementById("stepList");
-      container.innerHTML="";
-      flows.forEach(flow=>{
-        const h=document.createElement("h3");
-        h.textContent=`Flow ${flow.flowNumber}: ${flow.title}`;
-        container.appendChild(h);
-        flow.steps.forEach(s=>{
-          const div=document.createElement("div");
-          div.className="step";
-          let txt=`${s.from} → ${s.action} → ${s.to}`;
-          if(s.annotation) txt+=` [${s.annotation}]`;
-          div.textContent=txt;
-          container.appendChild(div);
+      function normalizeInPlace(v) {
+        const len = Math.sqrt(v.x * v.x + v.y * v.y);
+        if (len > 1e-9) {
+          v.x /= len;
+          v.y /= len;
+        }
+      }
+
+      /************************************************************
+       * 5) Text measurement
+       ************************************************************/
+      function measureSVGText(str, fontSize = 14) {
+        const t = document.getElementById("hiddenMeasureText");
+        t.setAttribute("font-size", String(fontSize));
+        const lines = str.split("\n");
+        let maxWidth = 0;
+        let totalHeight = 0;
+        const lineHeight = fontSize + 2;
+        lines.forEach((line) => {
+          if (!line) line = " ";
+          t.textContent = line;
+          const bbox = t.getBBox();
+          if (bbox.width > maxWidth) maxWidth = bbox.width;
+          totalHeight += lineHeight;
         });
-      });
-    }
-    function renderIconKey(participants){
-      const key=document.getElementById("iconKey");
-      key.innerHTML="";
-      const icons=new Set(participants.map(p=>p.icon));
-      if(!icons.size)return;
-      const h=document.createElement("h3");
-      h.textContent="Key (Material Icons Used):";
-      key.appendChild(h);
-      icons.forEach(iconName=>{
-        const d=document.createElement("div");
-        d.className="key-entry";
-        d.innerHTML=`
-          <span class="material-icons">${iconName}</span>
-          <div>${iconName}</div>
-        `;
-        key.appendChild(d);
-      });
-    }
+        return {
+          width: maxWidth,
+          height: totalHeight,
+          baseline: fontSize,
+        };
+      }
 
-    /************************************************************
-     * 7) Render & PNG Download
-     ************************************************************/
-    function renderStory(){
-      const input=document.getElementById("storyInput").value;
-      const {participants, flows} = parseNewSyntax(input);
-      globalParticipants=participants;
-      globalFlows=flows;
+      /************************************************************
+       * 6) Step list (just displays the original lines)
+       ************************************************************/
+      function renderStepList(flows) {
+        const container = document.getElementById("stepList");
+        container.innerHTML = "";
+        flows.forEach((flow) => {
+          const h = document.createElement("h3");
+          h.textContent = `Flow ${flow.flowNumber}: ${flow.title}`;
+          container.appendChild(h);
+          flow.steps.forEach((s) => {
+            const div = document.createElement("div");
+            div.className = "step";
+            // Just render s.originalLine as typed
+            div.textContent = s.originalLine;
+            container.appendChild(div);
+          });
+        });
+      }
 
-      layoutActorsGrid(participants);
-      renderFlows(participants, flows);
-      renderStepList(flows);
-      renderIconKey(participants);
-    }
+      /************************************************************
+       * 7) Main rendering logic
+       ************************************************************/
+      function renderStory() {
+        const input = document.getElementById("storyInput").value;
+        const { participants, flows } = parseDomainStory(input);
 
-    function downloadDiagramAsPNG(){
-      const diagramCanvas=document.getElementById("diagramCanvas");
-      html2canvas(diagramCanvas).then(canvas=>{
-        const dataURL=canvas.toDataURL("image/png");
-        const link=document.createElement("a");
-        link.download="domain_story.png";
-        link.href=dataURL;
-        link.click();
+        // Update global flow data
+        globalFlows = flows;
+        // Update participant set while preserving positions
+        updateParticipants(participants);
+
+        // Render flows
+        renderFlows(Object.values(existingParticipantsByName), flows);
+
+        // Render step list
+        renderStepList(flows);
+      }
+
+      function downloadDiagramAsPNG() {
+        const diagramCanvas = document.getElementById("diagramCanvas");
+        html2canvas(diagramCanvas).then((canvas) => {
+          const dataURL = canvas.toDataURL("image/png");
+          const link = document.createElement("a");
+          link.download = "domain_story.png";
+          link.href = dataURL;
+          link.click();
+        });
+      }
+
+      /************************************************************
+       * 8) Setup event listeners
+       ************************************************************/
+      document.addEventListener("DOMContentLoaded", () => {
+        // Initialise icon picker
+        setupIconPicker();
+
+        document
+          .getElementById("toggleIconPickerButton")
+          .addEventListener("click", toggleIconPicker);
+
+        document
+          .getElementById("downloadPNGButton")
+          .addEventListener("click", downloadDiagramAsPNG);
+
+        // Re-render on each keystroke
+        const storyInput = document.getElementById("storyInput");
+        storyInput.addEventListener("input", renderStory);
+
+        // Initial render (if there's default text in the textarea)
+        renderStory();
       });
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
