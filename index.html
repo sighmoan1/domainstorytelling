@@ -14,6 +14,10 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <style>
+      .hide-handles .control-handle {
+        display: none !important;
+      }
+
       body {
         font-family: sans-serif;
         margin: 1.5rem;
@@ -75,7 +79,7 @@
       }
       .participant-annotation {
         font-size: 0.8rem;
-        colour: #555;
+        color: #555;
         margin-top: 0.25rem;
         white-space: pre-wrap;
       }
@@ -173,7 +177,7 @@
       }
       .icon-picker-item:hover {
         background: #eee;
-        border-colour: #ccc;
+        border-color: #ccc;
       }
       .icon-picker-item .material-icons {
         font-size: 24px;
@@ -1170,7 +1174,13 @@ Example:
 
       function downloadDiagramAsPNG() {
         const diagramCanvas = document.getElementById("diagramCanvas");
+        // Hide the red control-handle circles
+        document.body.classList.add("hide-handles");
+
         html2canvas(diagramCanvas).then((canvas) => {
+          // Show them again
+          document.body.classList.remove("hide-handles");
+
           const dataURL = canvas.toDataURL("image/png");
           const link = document.createElement("a");
           link.download = "domain_story.png";
