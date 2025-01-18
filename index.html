@@ -191,10 +191,17 @@
   </style>
 </head>
 <body>
-  <h1>Domain Storytelling (New Syntax, Annotations Move, PNG Download)</h1>
+  <h1>Domain Storytelling</h1>
 
-  <p><strong>Example New Syntax:</strong></p>
+  <p><strong>Syntax</strong></p>
   <pre>
+
+You must have an Actors list. Then you can have as many flow lists as you want. 
+    Normal brackets defines the icon for the actor. 
+    Square brackets an annotation for the actor, or the flow step. 
+
+Use the below to see how it renders. The renderer is kinda bad so you need to move things around with the red circles.
+
 # Actors
 * Main User (person) [The central actor]
 * Checkout (shopping_cart)
@@ -203,6 +210,11 @@
 # Purchasing
 1. Main User Adds Item to Cart Checkout [The user has chosen an item]
 2. Checkout Requests Payment Payment
+
+# Asking for a refund
+1. Main User asks for a refund from Checkout
+
+
   </pre>
 
   <textarea id="storyInput" placeholder="Paste your domain story here..."></textarea>
