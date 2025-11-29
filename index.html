@@ -30,8 +30,6 @@
       --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     }
-    
-    /* Dark mode */
     .dark {
       --primary: #818cf8;
       --primary-dark: #6366f1;
@@ -49,6 +47,7 @@
     }
     .dark .participant { background: var(--surface-alt); }
     .dark .flow-label-bg { fill: var(--surface-alt); stroke: var(--border); }
+    .dark .domain-note { background: #422006; border-color: #854d0e; color: #fef3c7; }
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -282,9 +281,7 @@
       max-width: calc(100% - 80px);
     }
     .diagram-toolbar .btn { box-shadow: var(--shadow); }
-    .layout-dropdown {
-      position: relative;
-    }
+    .layout-dropdown { position: relative; }
     .layout-menu {
       position: absolute;
       top: 100%;
@@ -312,6 +309,39 @@
     .layout-menu-item:hover { background: var(--primary-light); }
     .layout-menu-item .material-icons { font-size: 18px; color: var(--primary); }
     
+    /* Domain Story Selector */
+    .story-selector {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 50;
+      max-width: calc(100% - 200px);
+      overflow-x: auto;
+    }
+    .story-tab {
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      transition: all 0.15s;
+    }
+    .story-tab:hover { background: var(--surface-alt); color: var(--text); }
+    .story-tab.active { background: var(--primary); color: white; }
+    .story-tab-all { font-style: italic; }
+    
     .diagram-controls {
       position: absolute;
       bottom: 16px;
@@ -335,26 +365,6 @@
       z-index: 50;
     }
     
-    /* Minimap */
-    .minimap {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      width: 150px;
-      height: 100px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      z-index: 50;
-      display: none;
-    }
-    .minimap.visible { display: block; }
-    .minimap-content { width: 100%; height: 100%; position: relative; }
-    .minimap-dot { position: absolute; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; transform: translate(-50%, -50%); }
-    .minimap-viewport { position: absolute; border: 2px solid var(--primary); background: rgba(99, 102, 241, 0.1); pointer-events: none; }
-    
     .flow-path { fill: none; stroke-width: 2; stroke-linecap: round; }
     .flow-label { font-size: 10px; font-weight: 500; fill: var(--text); }
     .flow-label-bg { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
@@ -367,6 +377,49 @@
     .hide-handles .control-handle { display: none; }
     
     .steps-container { flex: 1; overflow-y: auto; padding: 14px; }
+    
+    /* Domain Notes */
+    .domain-header {
+      background: var(--primary);
+      color: white;
+      padding: 14px 16px;
+      margin: -14px -14px 14px -14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .domain-header h2 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .domain-header h2 .material-icons { font-size: 20px; }
+    .domain-notes-section { margin-bottom: 20px; }
+    .domain-notes-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .domain-notes-title .material-icons { font-size: 16px; }
+    .domain-note {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-left: 4px solid #f59e0b;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .domain-note-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #92400e;
+      margin-bottom: 4px;
+    }
+    .domain-note-tag .material-icons { font-size: 14px; }
+    .domain-note-tag.user-story { color: #1d4ed8; }
+    .domain-note-tag.requirement { color: #7c3aed; }
+    .domain-note-tag.assumption { color: #0891b2; }
+    .domain-note-tag.risk { color: #dc2626; }
+    .domain-note-content { color: var(--text); }
+    
     .flow-section { margin-bottom: 20px; }
     .flow-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .flow-badge { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; }
@@ -385,7 +438,6 @@
     .empty-state .material-icons { font-size: 56px; margin-bottom: 12px; opacity: 0.4; }
     .empty-state p { font-size: 14px; margin-bottom: 16px; }
     
-    /* Search */
     .search-bar {
       display: flex;
       align-items: center;
@@ -407,7 +459,6 @@
     .search-input::placeholder { color: var(--text-light); }
     .search-results { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
     
-    /* Modals */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
     .modal-overlay.active { display: flex; }
     .modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 560px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; animation: slideUp 0.25s ease; }
@@ -434,13 +485,11 @@
     .template-card h4 .material-icons { font-size: 18px; color: var(--primary); }
     .template-card p { font-size: 11px; color: var(--text-muted); }
     
-    /* Keyboard shortcuts */
     .shortcuts-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; }
     .shortcut-key { display: inline-flex; align-items: center; gap: 4px; }
     .shortcut-key kbd { background: var(--surface-dim); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 11px; }
     .shortcut-desc { font-size: 13px; color: var(--text-muted); }
     
-    /* Icon picker */
     .icon-picker-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 200; display: none; align-items: flex-end; }
     .icon-picker-overlay.active { display: flex; }
     .icon-picker { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-height: 65vh; display: flex; flex-direction: column; animation: slideUp 0.25s ease; }
@@ -460,34 +509,32 @@
     .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--surface); padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 300; animation: fadeInUp 0.2s ease; box-shadow: var(--shadow-lg); }
     @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     
-    /* Save indicator */
     .save-indicator { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted); margin-left: auto; }
     .save-indicator .material-icons { font-size: 14px; }
     .save-indicator.saving { color: var(--warning); }
     .save-indicator.saved { color: var(--success); }
     
-    /* DESKTOP LAYOUT */
     @media (min-width: 900px) {
       .tabs { display: none; }
       .main-content { flex-direction: row; }
-      .panel.editor-panel { display: flex !important; width: 320px; min-width: 280px; max-width: 400px; border-right: 1px solid var(--border); resize: horizontal; overflow: auto; }
+      .panel.editor-panel { display: flex !important; width: 360px; min-width: 300px; max-width: 450px; border-right: 1px solid var(--border); resize: horizontal; overflow: auto; }
       .panel.diagram-panel { display: flex !important; flex: 1; flex-direction: column; }
       .panel.steps-panel { display: none !important; }
-      .desktop-steps-section { border-top: 1px solid var(--border); max-height: 250px; overflow-y: auto; background: var(--surface-dim); }
+      .desktop-steps-section { border-top: 1px solid var(--border); max-height: 280px; overflow-y: auto; background: var(--surface-dim); }
       .desktop-steps-section .steps-container { padding: 12px 16px; }
       .desktop-steps-section .flow-section { margin-bottom: 12px; }
       .desktop-steps-section .step-item { padding: 8px 10px; margin-bottom: 4px; }
+      .desktop-steps-section .domain-header { margin: -12px -16px 12px -16px; padding: 10px 16px; }
       .steps-toggle { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); }
       .steps-toggle:hover { background: var(--surface-dim); }
       .steps-toggle .material-icons { font-size: 20px; transition: transform 0.2s; }
       .steps-toggle.collapsed .material-icons { transform: rotate(180deg); }
-      .minimap { display: block; }
       .modal { border-radius: 20px; max-height: 70vh; margin: auto; }
       .icon-picker { border-radius: 20px; max-height: 55vh; max-width: 480px; margin: auto; }
     }
     @media (min-width: 1200px) {
-      .panel.editor-panel { width: 380px; }
-      .desktop-steps-section { max-height: 300px; }
+      .panel.editor-panel { width: 420px; }
+      .desktop-steps-section { max-height: 320px; }
     }
     
     .measure-svg { position: absolute; visibility: hidden; pointer-events: none; }
@@ -522,8 +569,10 @@
             <button class="btn btn-ghost btn-sm" id="undoBtn" title="Undo (Ctrl+Z)"><span class="material-icons">undo</span></button>
             <button class="btn btn-ghost btn-sm" id="redoBtn" title="Redo (Ctrl+Y)"><span class="material-icons">redo</span></button>
             <span class="toolbar-divider"></span>
+            <button class="btn btn-ghost btn-sm" id="insertDomainBtn" title="Add Domain Story"><span class="material-icons">library_add</span></button>
             <button class="btn btn-ghost btn-sm" id="insertActorBtn" title="Add Actor"><span class="material-icons">person_add</span></button>
             <button class="btn btn-ghost btn-sm" id="insertFlowBtn" title="Add Flow"><span class="material-icons">playlist_add</span></button>
+            <button class="btn btn-ghost btn-sm" id="insertNoteBtn" title="Add Note"><span class="material-icons">note_add</span></button>
             <span class="toolbar-divider"></span>
             <button class="btn btn-ghost btn-sm" id="shareBtn" title="Share Link"><span class="material-icons">share</span></button>
             <button class="btn btn-ghost btn-sm" id="importBtn" title="Import JSON"><span class="material-icons">upload_file</span></button>
@@ -532,13 +581,17 @@
             <button class="btn btn-ghost btn-sm" id="clearBtn" title="Clear"><span class="material-icons">delete_outline</span></button>
           </div>
           <div class="editor-wrapper">
-            <textarea class="editor" id="storyInput" placeholder="Write your domain story...
+            <textarea class="editor" id="storyInput" placeholder="Write your domain stories...
+
+# As-Is Process
+> [user-story] As a user I want to...
+> [requirement] System must...
 
 @Customer (person)
-@Cart (shopping_cart)
+@System (computer)
 
-## Checkout
-Customer, adds item to, Cart"></textarea>
+## Main Flow
+Customer, interacts with, System"></textarea>
             <div class="autocomplete" id="autocomplete"></div>
           </div>
           <div class="validation-bar" id="validationBar">
@@ -546,11 +599,12 @@ Customer, adds item to, Cart"></textarea>
             <span id="validationText">Ready</span>
           </div>
           <div class="quick-bar">
+            <span class="quick-chip" data-action="domain"><span class="material-icons">library_add</span> Domain</span>
             <span class="quick-chip" data-action="actor"><span class="material-icons">person_add</span> Actor</span>
             <span class="quick-chip" data-action="flow"><span class="material-icons">arrow_forward</span> Flow</span>
             <span class="quick-chip" data-action="step"><span class="material-icons">add</span> Step</span>
-            <span class="quick-chip" data-action="note"><span class="material-icons">note_add</span> Note</span>
-            <span class="quick-chip" data-action="object"><span class="material-icons">inventory_2</span> Object</span>
+            <span class="quick-chip" data-action="userstory"><span class="material-icons">auto_stories</span> Story</span>
+            <span class="quick-chip" data-action="requirement"><span class="material-icons">checklist</span> Req</span>
           </div>
         </div>
       </section>
@@ -570,8 +624,9 @@ Customer, adds item to, Cart"></textarea>
                 <div class="layout-menu-item" data-layout="grid"><span class="material-icons">grid_view</span> Grid</div>
               </div>
             </div>
-            <button class="btn btn-secondary btn-sm" id="minimapBtn" title="Toggle minimap"><span class="material-icons">map</span></button>
           </div>
+          
+          <div class="story-selector" id="storySelector"></div>
           
           <div class="zoom-indicator" id="zoomIndicator">100%</div>
           
@@ -579,10 +634,6 @@ Customer, adds item to, Cart"></textarea>
             <button class="btn btn-secondary btn-icon" id="zoomInBtn"><span class="material-icons">add</span></button>
             <button class="btn btn-secondary btn-icon" id="zoomOutBtn"><span class="material-icons">remove</span></button>
             <button class="btn btn-secondary btn-icon" id="fitBtn"><span class="material-icons">fit_screen</span></button>
-          </div>
-          
-          <div class="minimap" id="minimap">
-            <div class="minimap-content" id="minimapContent"></div>
           </div>
           
           <div class="empty-state" id="emptyState">
@@ -594,12 +645,8 @@ Customer, adds item to, Cart"></textarea>
         
         <div class="desktop-steps-section" id="desktopSteps" style="display:none">
           <div class="steps-toggle" id="stepsToggle">
-            <span>Steps</span>
+            <span>Steps & Notes</span>
             <span class="material-icons">expand_less</span>
-          </div>
-          <div class="search-bar">
-            <input type="text" class="search-input" id="searchInput" placeholder="Search actors or steps..." />
-            <span class="search-results" id="searchResults"></span>
           </div>
           <div class="steps-container" id="desktopStepsContainer"></div>
         </div>
@@ -607,7 +654,7 @@ Customer, adds item to, Cart"></textarea>
       
       <section class="panel steps-panel" id="steps-panel">
         <div class="search-bar">
-          <input type="text" class="search-input" id="mobileSearchInput" placeholder="Search actors or steps..." />
+          <input type="text" class="search-input" id="mobileSearchInput" placeholder="Search..." />
           <span class="search-results" id="mobileSearchResults"></span>
         </div>
         <div class="steps-container" id="stepsContainer">
@@ -626,24 +673,44 @@ Customer, adds item to, Cart"></textarea>
       <div class="modal-body">
         <div class="modal-tabs">
           <button class="modal-tab active" data-tab="syntax">Syntax</button>
-          <button class="modal-tab" data-tab="icons">Icons</button>
+          <button class="modal-tab" data-tab="groups">Groups</button>
           <button class="modal-tab" data-tab="llm">For AI</button>
         </div>
         <div class="modal-panel active" id="syntax-panel">
-          <div class="syntax-section"><h3><span class="material-icons">person</span> Define Actors</h3><p>Start with @ then name and icon</p><div class="syntax-block">@Customer (person)
-@Shopping Cart (shopping_cart)
-@Payment (payments) "Stripe"</div></div>
-          <div class="syntax-section"><h3><span class="material-icons">arrow_forward</span> Create Flows</h3><p>Use ## to start a flow</p><div class="syntax-block">## Checkout Process</div></div>
-          <div class="syntax-section"><h3><span class="material-icons">sync_alt</span> Write Steps</h3><p>Comma-separated: From, action, To</p><div class="syntax-block">Customer, adds item to, Cart
-Cart, requests payment from, Payment</div></div>
-          <div class="syntax-section"><h3><span class="material-icons">inventory_2</span> Work Objects & Notes</h3><p>Use {braces} for objects, "quotes" for notes</p><div class="syntax-block">Customer, submits, System {Order}
-Customer, pays, Payment "Credit card"</div></div>
+          <div class="syntax-section"><h3><span class="material-icons">folder</span> Domain Story Groups</h3><p>Use # to create groups (e.g., As-Is, To-Be)</p><div class="syntax-block"># Incident Record As-Is
+# Incident Record To-Be Release 1
+# Incident Record To-Be Release 2</div></div>
+          <div class="syntax-section"><h3><span class="material-icons">sticky_note_2</span> Notes & Requirements</h3><p>Use > with tags for notes</p><div class="syntax-block">> [user-story] As a user I want to...
+> [requirement] System must support...
+> [assumption] We assume that...
+> [risk] There is a risk that...</div></div>
+          <div class="syntax-section"><h3><span class="material-icons">person</span> Define Actors</h3><div class="syntax-block">@Customer (person)
+@System (computer) "annotation"</div></div>
+          <div class="syntax-section"><h3><span class="material-icons">sync_alt</span> Flows & Steps</h3><div class="syntax-block">## Checkout Process
+Customer, adds item to, Cart {Product}
+Cart, confirms to, Customer "success"</div></div>
         </div>
-        <div class="modal-panel" id="icons-panel">
-          <div class="syntax-section"><h3><span class="material-icons">emoji_people</span> People</h3><div class="syntax-block">person, group, support_agent, engineering, admin_panel_settings, badge</div></div>
-          <div class="syntax-section"><h3><span class="material-icons">dns</span> Systems</h3><div class="syntax-block">computer, cloud, storage, dns, api, terminal, database</div></div>
-          <div class="syntax-section"><h3><span class="material-icons">description</span> Documents</h3><div class="syntax-block">description, article, receipt, folder, assignment, task</div></div>
-          <div class="syntax-section"><h3><span class="material-icons">store</span> Business</h3><div class="syntax-block">shopping_cart, payments, store, warehouse, local_shipping</div></div>
+        <div class="modal-panel" id="groups-panel">
+          <div class="syntax-section"><h3><span class="material-icons">timeline</span> Evolution Over Time</h3><p>Create multiple domain stories to show how a domain evolves:</p><div class="syntax-block"># Current State (As-Is)
+@LegacySystem (computer)
+...
+
+# Target State (To-Be)
+@NewSystem (cloud)
+...
+
+# Intermediate Release 1
+@HybridSystem (dns)
+...</div></div>
+          <div class="syntax-section"><h3><span class="material-icons">switch_access_shortcut</span> Switching Views</h3><p>Use the tabs above the diagram to switch between domain stories or view all at once.</p></div>
+          <div class="syntax-section"><h3><span class="material-icons">note_alt</span> Attaching Context</h3><p>Add user stories, requirements, assumptions, and risks at the domain level using > notes:</p><div class="syntax-block"># Payment Integration
+> [user-story] As a customer I want to pay with Apple Pay
+> [requirement] PCI-DSS compliance required
+> [assumption] Partner API is stable
+> [risk] Integration timeline uncertain
+
+@Customer (person)
+...</div></div>
         </div>
         <div class="modal-panel" id="llm-panel">
           <p style="margin-bottom:12px;font-size:12px;color:var(--text-muted);">Copy this prompt for any AI:</p>
@@ -661,15 +728,11 @@ Customer, pays, Payment "Credit card"</div></div>
         <div class="shortcuts-grid">
           <div class="shortcut-key"><kbd>Ctrl</kbd>+<kbd>Z</kbd></div><div class="shortcut-desc">Undo</div>
           <div class="shortcut-key"><kbd>Ctrl</kbd>+<kbd>Y</kbd></div><div class="shortcut-desc">Redo</div>
-          <div class="shortcut-key"><kbd>Ctrl</kbd>+<kbd>S</kbd></div><div class="shortcut-desc">Save (auto-saved)</div>
           <div class="shortcut-key"><kbd>Ctrl</kbd>+<kbd>E</kbd></div><div class="shortcut-desc">Export PNG</div>
           <div class="shortcut-key"><kbd>Ctrl</kbd>+<kbd>L</kbd></div><div class="shortcut-desc">Auto-layout</div>
-          <div class="shortcut-key"><kbd>Ctrl</kbd>+<kbd>F</kbd></div><div class="shortcut-desc">Search</div>
           <div class="shortcut-key"><kbd>Ctrl</kbd>+<kbd>D</kbd></div><div class="shortcut-desc">Toggle dark mode</div>
-          <div class="shortcut-key"><kbd>Esc</kbd></div><div class="shortcut-desc">Close modal / Clear search</div>
-          <div class="shortcut-key"><kbd>1</kbd></div><div class="shortcut-desc">Switch to Editor</div>
-          <div class="shortcut-key"><kbd>2</kbd></div><div class="shortcut-desc">Switch to Diagram</div>
-          <div class="shortcut-key"><kbd>3</kbd></div><div class="shortcut-desc">Switch to Steps</div>
+          <div class="shortcut-key"><kbd>Esc</kbd></div><div class="shortcut-desc">Close modal</div>
+          <div class="shortcut-key"><kbd>←</kbd> <kbd>→</kbd></div><div class="shortcut-desc">Switch domain stories</div>
         </div>
       </div>
     </div>
@@ -702,574 +765,13 @@ Customer, pays, Payment "Credit card"</div></div>
     </div>
   </div>
   
-  <!-- Hidden file input for import -->
   <input type="file" id="importFileInput" accept=".json" style="display:none" />
-  
   <svg class="measure-svg" id="measureSvg"><text id="measureText" font-size="10"></text></svg>
-  <script>
-    const FLOW_COLORS = ['#6366f1', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
-    const ICON_CATEGORIES = {
-      suggested: ['person', 'group', 'computer', 'cloud', 'storage', 'description', 'shopping_cart', 'payments', 'local_shipping', 'email', 'support_agent', 'inventory_2', 'receipt_long', 'assignment', 'verified_user', 'settings', 'api', 'webhook'],
-      people: ['person', 'group', 'groups', 'support_agent', 'engineering', 'admin_panel_settings', 'supervisor_account', 'face', 'manage_accounts', 'badge', 'people', 'contacts', 'diversity_3'],
-      business: ['shopping_cart', 'payments', 'store', 'storefront', 'inventory_2', 'local_shipping', 'warehouse', 'point_of_sale', 'account_balance', 'credit_card', 'receipt_long', 'shopping_bag', 'sell', 'loyalty', 'trending_up', 'analytics'],
-      tech: ['computer', 'dns', 'storage', 'cloud', 'api', 'database', 'terminal', 'code', 'integration_instructions', 'webhook', 'memory', 'developer_board', 'router', 'hub', 'security', 'vpn_key', 'lock', 'settings', 'build'],
-      docs: ['description', 'article', 'receipt', 'inventory', 'assignment', 'folder', 'draft', 'note_add', 'task', 'checklist', 'content_paste', 'sticky_note_2', 'fact_check', 'event_note', 'calendar_today', 'schedule']
-    };
-    const TEMPLATES = [
-      { id: 'ecommerce', title: 'E-Commerce', icon: 'shopping_cart', desc: 'Shopping flow', content: '@Customer (person)\n@Product Catalog (inventory)\n@Shopping Cart (shopping_cart)\n@Payment (payments)\n@Warehouse (warehouse)\n\n## Purchase Flow\nCustomer, browses, Product Catalog\nCustomer, adds to, Shopping Cart {Product}\nCustomer, checks out via, Payment\nPayment, confirms to, Customer {Receipt}\n\n## Fulfillment\nPayment, notifies, Warehouse {Order}\nWarehouse, ships to, Customer {Package}' },
-      { id: 'support', title: 'Support Ticket', icon: 'support_agent', desc: 'Help desk flow', content: '@Customer (person)\n@Support Portal (computer)\n@Support Agent (support_agent)\n@Knowledge Base (menu_book)\n\n## Submit Ticket\nCustomer, submits issue to, Support Portal {Ticket}\nSupport Portal, assigns to, Support Agent\nSupport Agent, searches, Knowledge Base\n\n## Resolution\nSupport Agent, responds to, Customer {Solution}\nCustomer, confirms to, Support Portal' },
-      { id: 'approval', title: 'Approval', icon: 'fact_check', desc: 'Approval workflow', content: '@Employee (person)\n@Request System (assignment)\n@Manager (supervisor_account)\n@Finance (account_balance)\n\n## Submit Request\nEmployee, submits, Request System {Expense Report}\nRequest System, notifies, Manager\n\n## Approval\nManager, approves in, Request System\nRequest System, forwards to, Finance\nFinance, processes payment to, Employee' },
-      { id: 'onboarding', title: 'Onboarding', icon: 'how_to_reg', desc: 'User signup', content: '@New User (person)\n@Website (language)\n@Auth System (verified_user)\n@Email Service (email)\n@Dashboard (dashboard)\n\n## Registration\nNew User, signs up on, Website {Credentials}\nWebsite, creates account in, Auth System\nAuth System, sends verification via, Email Service\n\n## Activation\nNew User, confirms email to, Auth System\nAuth System, redirects to, Dashboard' },
-      { id: 'api', title: 'API Flow', icon: 'api', desc: 'System integration', content: '@Client App (smartphone)\n@API Gateway (api)\n@Auth Service (lock)\n@Backend (dns)\n@Database (storage)\n\n## Request\nClient App, sends request to, API Gateway {API Call}\nAPI Gateway, validates with, Auth Service {Token}\nAuth Service, confirms to, API Gateway\n\n## Response\nAPI Gateway, forwards to, Backend\nBackend, queries, Database\nDatabase, returns to, Backend {Results}\nBackend, responds to, Client App' },
-      { id: 'blank', title: 'Blank', icon: 'note_add', desc: 'Start fresh', content: '@Actor1 (person)\n@Actor2 (computer)\n\n## My Flow\nActor1, does something to, Actor2' }
-    ];
-    const LLM_PROMPT = `Generate domain stories using comma-based syntax:
-
-## SYNTAX
-@ActorName (icon_name) - Define actors
-## Flow Title - Create a flow
-From, action, To - Write steps
-{Work Object} - Add objects passed
-"annotation" - Add notes
-
-## ICONS
-person, group, computer, cloud, storage, api, shopping_cart, payments, description, receipt
-
-## EXAMPLE
-@Customer (person)
-@Cart (shopping_cart)
-@Payment (payments)
-
-## Purchase
-Customer, browses products in, Cart
-Customer, adds item to, Cart {Product}
-Customer, pays via, Payment {Credit Card}
-Payment, confirms to, Customer {Receipt}
-
-Generate a domain story for:`;
-
-    const state = {
-      participants: {},
-      flows: [],
-      zoom: 1,
-      pan: { x: 0, y: 0 },
-      canvasSize: { width: 1400, height: 1000 },
-      history: [],
-      historyIndex: -1,
-      errors: [],
-      searchQuery: '',
-      minimapVisible: true,
-      darkMode: localStorage.getItem('darkMode') === 'true'
-    };
-    let allIcons = [], autocompleteIndex = -1, saveTimeout = null;
-
-    // Initialize
-    function init() {
-      loadIcons();
-      loadFromStorage();
-      if (state.darkMode) document.body.classList.add('dark');
-      
-      const ed = document.getElementById('storyInput');
-      let debounce;
-      ed.addEventListener('input', () => {
-        clearTimeout(debounce);
-        debounce = setTimeout(() => { saveHistory(); update(); autoSave(); }, 150);
-        checkAutocomplete();
-      });
-      
-      // Keyboard shortcuts
-      document.addEventListener('keydown', handleKeyboard);
-      ed.addEventListener('keydown', handleEditorKeyboard);
-      ed.addEventListener('blur', () => setTimeout(hideAutocomplete, 150));
-      
-      // Buttons
-      document.getElementById('helpBtn').onclick = openHelp;
-      document.getElementById('closeHelpBtn').onclick = () => closeModal('helpModal');
-      document.getElementById('shortcutsBtn').onclick = () => document.getElementById('shortcutsModal').classList.add('active');
-      document.getElementById('closeShortcutsBtn').onclick = () => closeModal('shortcutsModal');
-      document.getElementById('templatesBtn').onclick = openTemplates;
-      document.getElementById('closeTemplatesBtn').onclick = () => closeModal('templatesModal');
-      document.getElementById('iconPickerBtn').onclick = openIconPicker;
-      document.getElementById('exportBtn').onclick = exportPNG;
-      document.getElementById('darkModeBtn').onclick = toggleDarkMode;
-      document.getElementById('undoBtn').onclick = undo;
-      document.getElementById('redoBtn').onclick = redo;
-      document.getElementById('insertActorBtn').onclick = insertActor;
-      document.getElementById('insertFlowBtn').onclick = insertFlow;
-      document.getElementById('clearBtn').onclick = () => { if (confirm('Clear all?')) { ed.value = ''; saveHistory(); update(); autoSave(); } };
-      document.getElementById('shareBtn').onclick = shareLink;
-      document.getElementById('importBtn').onclick = () => document.getElementById('importFileInput').click();
-      document.getElementById('importFileInput').onchange = importJSON;
-      document.getElementById('exportJsonBtn').onclick = exportJSON;
-      document.getElementById('zoomInBtn').onclick = () => setZoom(state.zoom + 0.2);
-      document.getElementById('zoomOutBtn').onclick = () => setZoom(state.zoom - 0.2);
-      document.getElementById('fitBtn').onclick = fitToScreen;
-      document.getElementById('startEditingBtn').onclick = () => switchTab('editor');
-      document.getElementById('layoutBtn').onclick = toggleLayoutMenu;
-      document.getElementById('minimapBtn').onclick = toggleMinimap;
-      
-      // Layout menu
-      document.querySelectorAll('.layout-menu-item').forEach(item => {
-        item.onclick = () => { applyLayout(item.dataset.layout); document.getElementById('layoutMenu').classList.remove('visible'); };
-      });
-      
-      // Quick chips
-      document.querySelectorAll('.quick-chip').forEach(chip => chip.onclick = () => {
-        const a = chip.dataset.action;
-        if (a === 'actor') insertActor();
-        else if (a === 'flow') insertFlow();
-        else if (a === 'step') insertStep();
-        else if (a === 'note') insertAtCursor(' "note"');
-        else if (a === 'object') insertAtCursor(' {Object}');
-      });
-      
-      // Search
-      document.getElementById('searchInput').oninput = e => performSearch(e.target.value);
-      document.getElementById('mobileSearchInput').oninput = e => performSearch(e.target.value);
-      
-      // Icon picker
-      document.getElementById('iconSearch').oninput = e => renderIconGrid('all', e.target.value);
-      document.getElementById('iconCategories').onclick = e => {
-        if (e.target.classList.contains('icon-category')) {
-          document.querySelectorAll('.icon-category').forEach(c => c.classList.remove('active'));
-          e.target.classList.add('active');
-          renderIconGrid(e.target.dataset.category, document.getElementById('iconSearch').value);
-        }
-      };
-      
-      // Tabs
-      document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.panel));
-      document.querySelectorAll('.modal-tab').forEach(t => t.onclick = () => {
-        document.querySelectorAll('.modal-tab').forEach(x => x.classList.remove('active'));
-        document.querySelectorAll('.modal-panel').forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        document.getElementById(`${t.dataset.tab}-panel`).classList.add('active');
-      });
-      
-      // Close modals on overlay click
-      ['helpModal', 'shortcutsModal', 'templatesModal', 'iconPickerOverlay'].forEach(id => {
-        document.getElementById(id).onclick = e => { if (e.target.id === id) closeModal(id); };
-      });
-      
-      // Desktop steps toggle
-      document.getElementById('stepsToggle').onclick = function() {
-        this.classList.toggle('collapsed');
-        document.getElementById('desktopStepsContainer').style.display = this.classList.contains('collapsed') ? 'none' : 'block';
-        document.querySelector('.search-bar').style.display = this.classList.contains('collapsed') ? 'none' : 'flex';
-      };
-      
-      // Pinch zoom
-      setupPinchZoom();
-      
-      // Window resize
-      window.addEventListener('resize', () => { renderSteps(); if (isDesktop()) setTimeout(fitToScreen, 100); });
-      
-      // Close layout menu on outside click
-      document.addEventListener('click', e => {
-        if (!e.target.closest('.layout-dropdown')) {
-          document.getElementById('layoutMenu').classList.remove('visible');
-        }
-      });
-      
-      // Check URL for shared diagram
-      loadFromURL();
-      
-      saveHistory();
-      update();
-      if (isDesktop()) setTimeout(fitToScreen, 100);
-    }
-
-    function isDesktop() { return window.innerWidth >= 900; }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    // === HISTORY & SAVE ===
-    function saveHistory() {
-      const text = document.getElementById('storyInput').value;
-      if (state.history[state.historyIndex] === text) return;
-      state.history = state.history.slice(0, state.historyIndex + 1);
-      state.history.push(text);
-      if (state.history.length > 50) state.history.shift();
-      state.historyIndex = state.history.length - 1;
-    }
-    function undo() { if (state.historyIndex > 0) { state.historyIndex--; document.getElementById('storyInput').value = state.history[state.historyIndex]; update(); } }
-    function redo() { if (state.historyIndex < state.history.length - 1) { state.historyIndex++; document.getElementById('storyInput').value = state.history[state.historyIndex]; update(); } }
-    
-    function autoSave() {
-      const indicator = document.getElementById('saveIndicator');
-      indicator.className = 'save-indicator saving';
-      indicator.innerHTML = '<span class="material-icons">sync</span> Saving...';
-      clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => {
-        const data = {
-          text: document.getElementById('storyInput').value,
-          positions: {},
-          controlPoints: {}
-        };
-        Object.entries(state.participants).forEach(([name, p]) => { data.positions[name] = { x: p.x, y: p.y }; });
-        state.flows.forEach((f, fi) => f.steps.forEach((s, si) => {
-          if (s.controlX !== null) data.controlPoints[`${fi}-${si}`] = { x: s.controlX, y: s.controlY };
-        }));
-        localStorage.setItem('domainStory', JSON.stringify(data));
-        indicator.className = 'save-indicator saved';
-        indicator.innerHTML = '<span class="material-icons">cloud_done</span> Saved';
-      }, 500);
-    }
-    
-    function loadFromStorage() {
-      try {
-        const saved = localStorage.getItem('domainStory');
-        if (saved) {
-          const data = JSON.parse(saved);
-          document.getElementById('storyInput').value = data.text || '';
-          state.savedPositions = data.positions || {};
-          state.savedControlPoints = data.controlPoints || {};
-        }
-      } catch (e) { console.error('Failed to load:', e); }
-    }
-
-    // === ICONS ===
-    async function loadIcons() {
-      try {
-        const resp = await fetch('https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints');
-        allIcons = (await resp.text()).split('\n').filter(Boolean).map(l => l.split(' ')[0]).sort();
-      } catch (e) { allIcons = [...new Set(Object.values(ICON_CATEGORIES).flat())].sort(); }
-      renderIconGrid('suggested');
-    }
-    
-    function renderIconGrid(category = 'suggested', filter = '') {
-      const grid = document.getElementById('iconGrid');
-      let icons = category === 'all' ? allIcons : (ICON_CATEGORIES[category] || ICON_CATEGORIES.suggested);
-      if (filter) icons = allIcons.filter(i => i.includes(filter.toLowerCase()));
-      grid.innerHTML = icons.slice(0, 100).map(icon => `<div class="icon-item" data-icon="${icon}"><span class="material-icons">${icon}</span><span>${icon.replace(/_/g, ' ')}</span></div>`).join('');
-      grid.querySelectorAll('.icon-item').forEach(item => item.addEventListener('click', () => {
-        insertAtCursor(`(${item.dataset.icon})`);
-        showToast(`Added: ${item.dataset.icon}`);
-        closeModal('iconPickerOverlay');
-      }));
-    }
-
-    // === PARSING ===
-    function parseDomainStory(input) {
-      const lines = input.split('\n');
-      const participants = [], flows = [], errors = [];
-      let currentFlow = null, flowNum = 0;
-      const actorNames = [];
-      
-      lines.forEach((rawLine, lineIdx) => {
-        const line = rawLine.trim();
-        if (!line) return;
-        const lineNum = lineIdx + 1;
-        
-        if (line.startsWith('@')) {
-          const m = line.match(/^@(.+?)\s*\((\w+)\)\s*(?:"(.+)")?$/);
-          if (m) { participants.push({ name: m[1].trim(), icon: m[2].trim(), annotation: m[3] || null }); actorNames.push(m[1].trim()); }
-          else {
-            if (!line.includes('(')) errors.push({ line: lineNum, msg: 'Missing icon', hint: '@Name (icon)' });
-            else errors.push({ line: lineNum, msg: 'Invalid actor syntax', hint: '@Name (icon)' });
-          }
-          return;
-        }
-        if (line.startsWith('##')) {
-          flowNum++;
-          const title = line.replace(/^#+\s*/, '').trim();
-          currentFlow = { number: flowNum, title: title || 'Untitled', steps: [] };
-          flows.push(currentFlow);
-          return;
-        }
-        if (line.startsWith('//') || line.startsWith('#')) return;
-        if (line.includes(',')) {
-          if (!currentFlow) { errors.push({ line: lineNum, msg: 'Step outside of flow', hint: 'Add ## Flow Title first' }); return; }
-          const parsed = parseStep(line, actorNames, lineNum, errors);
-          if (parsed) currentFlow.steps.push({ ...parsed, controlX: null, controlY: null });
-        } else if (line.length > 0) {
-          errors.push({ line: lineNum, msg: 'Unrecognized line', hint: 'From, action, To' });
-        }
-      });
-      return { participants, flows, errors };
-    }
-
-    function parseStep(line, actorNames, lineNum, errors) {
-      let annotation = null, workObject = null, cleanLine = line;
-      const annM = cleanLine.match(/"([^"]+)"\s*$/);
-      if (annM) { annotation = annM[1]; cleanLine = cleanLine.replace(annM[0], '').trim(); }
-      const workM = cleanLine.match(/\{([^}]+)\}\s*$/);
-      if (workM) { workObject = workM[1].trim(); cleanLine = cleanLine.replace(workM[0], '').trim(); }
-      const parts = cleanLine.split(',').map(p => p.trim()).filter(p => p);
-      if (parts.length < 2) { errors.push({ line: lineNum, msg: 'Need at least 2 parts', hint: 'From, action, To' }); return null; }
-      const fromName = parts[0], toName = parts[parts.length - 1];
-      const fromMatch = actorNames.find(n => n.toLowerCase() === fromName.toLowerCase());
-      const toMatch = actorNames.find(n => n.toLowerCase() === toName.toLowerCase());
-      if (!fromMatch) errors.push({ line: lineNum, msg: `Unknown actor "${fromName}"`, hint: '@' + fromName + ' (icon)' });
-      if (!toMatch && toName.toLowerCase() !== fromName.toLowerCase()) errors.push({ line: lineNum, msg: `Unknown actor "${toName}"`, hint: '@' + toName + ' (icon)' });
-      return { from: fromMatch || fromName, action: parts.length > 2 ? parts.slice(1, -1).join(', ') : '', to: toMatch || toName, workObject, annotation };
-    }
-
-    function validate() {
-      const bar = document.getElementById('validationBar'), text = document.getElementById('validationText'), badge = document.getElementById('errorBadge');
-      const input = document.getElementById('storyInput').value;
-      if (!input.trim()) { bar.className = 'validation-bar'; text.innerHTML = '<span class="material-icons">edit</span> Empty - start typing'; badge.style.display = 'none'; return; }
-      if (state.errors.length > 0) {
-        const err = state.errors[0];
-        bar.className = 'validation-bar error';
-        text.innerHTML = `<span class="material-icons">error</span> Line ${err.line}: ${err.msg} <code>${err.hint}</code>`;
-        badge.textContent = state.errors.length; badge.style.display = 'inline-flex'; return;
-      }
-      const steps = state.flows.reduce((s, f) => s + f.steps.length, 0);
-      bar.className = 'validation-bar success';
-      text.innerHTML = `<span class="material-icons">check_circle</span> ${Object.keys(state.participants).length} actors, ${state.flows.length} flows, ${steps} steps`;
-      badge.style.display = 'none';
-    }
-
-    // === LAYOUT ALGORITHMS ===
-    function applyLayout(type) {
-      const actors = Object.values(state.participants);
-      if (!actors.length) return;
-      
-      const cx = state.canvasSize.width / 2, cy = state.canvasSize.height / 2;
-      const padding = 120;
-      
-      // Reset control points
-      state.flows.forEach(f => f.steps.forEach(s => { s.controlX = null; s.controlY = null; }));
-      
-      if (type === 'circular') {
-        const radius = Math.min(cx, cy) - padding;
-        actors.forEach((p, i) => {
-          const angle = (i / actors.length) * 2 * Math.PI - Math.PI / 2;
-          p.x = cx + Math.cos(angle) * radius;
-          p.y = cy + Math.sin(angle) * radius;
-        });
-      }
-      else if (type === 'grid') {
-        const cols = Math.ceil(Math.sqrt(actors.length));
-        const cellW = (state.canvasSize.width - padding * 2) / cols;
-        const cellH = (state.canvasSize.height - padding * 2) / Math.ceil(actors.length / cols);
-        actors.forEach((p, i) => {
-          p.x = padding + (i % cols) * cellW + cellW / 2;
-          p.y = padding + Math.floor(i / cols) * cellH + cellH / 2;
-        });
-      }
-      else if (type === 'flow') {
-        // Left-to-right flow layout based on step order
-        const levels = new Map();
-        const visited = new Set();
-        
-        // Find roots (actors that are only sources, not targets)
-        const targets = new Set();
-        state.flows.forEach(f => f.steps.forEach(s => targets.add(s.to)));
-        const roots = actors.filter(a => !targets.has(a.name));
-        if (roots.length === 0) roots.push(actors[0]);
-        
-        // BFS to assign levels
-        let queue = roots.map(r => ({ actor: r, level: 0 }));
-        roots.forEach(r => { levels.set(r.name, 0); visited.add(r.name); });
-        
-        while (queue.length) {
-          const { actor, level } = queue.shift();
-          state.flows.forEach(f => f.steps.forEach(s => {
-            if (s.from === actor.name && !visited.has(s.to)) {
-              const target = state.participants[s.to];
-              if (target) {
-                levels.set(s.to, level + 1);
-                visited.add(s.to);
-                queue.push({ actor: target, level: level + 1 });
-              }
-            }
-          }));
-        }
-        
-        // Assign remaining actors
-        actors.forEach(a => { if (!levels.has(a.name)) levels.set(a.name, levels.size); });
-        
-        // Group by level
-        const byLevel = {};
-        levels.forEach((lvl, name) => { if (!byLevel[lvl]) byLevel[lvl] = []; byLevel[lvl].push(name); });
-        
-        const numLevels = Object.keys(byLevel).length;
-        const levelWidth = (state.canvasSize.width - padding * 2) / Math.max(numLevels, 1);
-        
-        Object.entries(byLevel).forEach(([lvl, names]) => {
-          const levelHeight = (state.canvasSize.height - padding * 2) / names.length;
-          names.forEach((name, i) => {
-            const p = state.participants[name];
-            p.x = padding + parseInt(lvl) * levelWidth + levelWidth / 2;
-            p.y = padding + i * levelHeight + levelHeight / 2;
-          });
-        });
-      }
-      else if (type === 'force') {
-        // Force-directed layout
-        const iterations = 100;
-        const repulsion = 15000;
-        const attraction = 0.05;
-        const damping = 0.85;
-        
-        // Build adjacency
-        const edges = [];
-        state.flows.forEach(f => f.steps.forEach(s => {
-          if (state.participants[s.from] && state.participants[s.to]) {
-            edges.push({ from: s.from, to: s.to });
-          }
-        }));
-        
-        // Initialize velocities
-        const vel = {};
-        actors.forEach(a => { vel[a.name] = { x: 0, y: 0 }; });
-        
-        for (let iter = 0; iter < iterations; iter++) {
-          // Repulsion between all pairs
-          for (let i = 0; i < actors.length; i++) {
-            for (let j = i + 1; j < actors.length; j++) {
-              const a = actors[i], b = actors[j];
-              const dx = b.x - a.x, dy = b.y - a.y;
-              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              const force = repulsion / (dist * dist);
-              const fx = (dx / dist) * force, fy = (dy / dist) * force;
-              vel[a.name].x -= fx; vel[a.name].y -= fy;
-              vel[b.name].x += fx; vel[b.name].y += fy;
-            }
-          }
-          
-          // Attraction along edges
-          edges.forEach(e => {
-            const a = state.participants[e.from], b = state.participants[e.to];
-            const dx = b.x - a.x, dy = b.y - a.y;
-            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            const force = dist * attraction;
-            const fx = (dx / dist) * force, fy = (dy / dist) * force;
-            vel[a.name].x += fx; vel[a.name].y += fy;
-            vel[b.name].x -= fx; vel[b.name].y -= fy;
-          });
-          
-          // Apply velocities with damping
-          actors.forEach(a => {
-            a.x += vel[a.name].x;
-            a.y += vel[a.name].y;
-            vel[a.name].x *= damping;
-            vel[a.name].y *= damping;
-            // Keep in bounds
-            a.x = Math.max(padding, Math.min(state.canvasSize.width - padding, a.x));
-            a.y = Math.max(padding, Math.min(state.canvasSize.height - padding, a.y));
-          });
-        }
-      }
-      
-      renderParticipants();
-      renderFlows();
-      updateMinimap();
-      fitToScreen();
-      autoSave();
-      showToast(`Applied ${type} layout`);
-    }
-    
-    function toggleLayoutMenu() {
-      document.getElementById('layoutMenu').classList.toggle('visible');
-    }
-
-    // === PARTICIPANTS ===
-    function updateParticipants(parsed) {
-      const newNames = new Set(parsed.map(p => p.name));
-      Object.keys(state.participants).forEach(n => { if (!newNames.has(n)) { state.participants[n].element?.remove(); delete state.participants[n]; } });
-      
-      parsed.forEach(p => {
-        if (state.participants[p.name]) {
-          Object.assign(state.participants[p.name], { icon: p.icon, annotation: p.annotation });
-        } else {
-          // Check for saved position
-          const saved = state.savedPositions?.[p.name];
-          state.participants[p.name] = { ...p, x: saved?.x ?? null, y: saved?.y ?? null, element: null };
-        }
-      });
-      
-      // Position unplaced actors
-      const unplaced = Object.values(state.participants).filter(p => p.x === null);
-      if (unplaced.length) {
-        const cx = state.canvasSize.width / 2, cy = state.canvasSize.height / 2;
-        const r = Math.min(cx, cy) * 0.5;
-        unplaced.forEach((p, i) => {
-          const angle = (i / unplaced.length) * 2 * Math.PI - Math.PI / 2;
-          p.x = cx + Math.cos(angle) * r;
-          p.y = cy + Math.sin(angle) * r;
-        });
-      }
-      renderParticipants();
-    }
-
-    function getActorType(icon) {
-      if (ICON_CATEGORIES.people.includes(icon)) return 'person';
-      if (ICON_CATEGORIES.tech.includes(icon)) return 'system';
-      if (ICON_CATEGORIES.docs.includes(icon)) return 'document';
-      return 'work';
-    }
-
-    function renderParticipants() {
-      const canvas = document.getElementById('diagramCanvas');
-      Object.values(state.participants).forEach(p => {
-        if (!p.element) { const div = document.createElement('div'); div.className = 'participant'; div.dataset.name = p.name; canvas.appendChild(div); p.element = div; makeDraggable(div, p); }
-        p.element.dataset.type = getActorType(p.icon);
-        p.element.innerHTML = `<span class="material-icons">${p.icon}</span><div class="participant-name">${p.name}</div>${p.annotation ? `<div class="participant-annotation">${p.annotation}</div>` : ''}`;
-        const w = p.element.offsetWidth || 90, h = p.element.offsetHeight || 70;
-        p.element.style.left = `${(p.x - w/2) * state.zoom + state.pan.x}px`;
-        p.element.style.top = `${(p.y - h/2) * state.zoom + state.pan.y}px`;
-        p.element.style.transform = `scale(${state.zoom})`;
-        p.element.style.transformOrigin = 'top left';
-        
-        // Highlight if matches search
-        if (state.searchQuery && p.name.toLowerCase().includes(state.searchQuery.toLowerCase())) {
-          p.element.classList.add('highlighted');
-        } else {
-          p.element.classList.remove('highlighted');
-        }
-      });
-      updateMinimap();
-    }
-
-    function makeDraggable(el, p) {
-      let startX, startY, startPx, startPy, dragging = false;
-      function onStart(e) { e.preventDefault(); dragging = true; el.classList.add('dragging'); const t = e.touches ? e.touches[0] : e; startX = t.clientX; startY = t.clientY; startPx = p.x; startPy = p.y; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd); document.addEventListener('touchmove', onMove, { passive: false }); document.addEventListener('touchend', onEnd); }
-      function onMove(e) { if (!dragging) return; e.preventDefault(); const t = e.touches ? e.touches[0] : e; p.x = startPx + (t.clientX - startX) / state.zoom; p.y = startPy + (t.clientY - startY) / state.zoom; renderParticipants(); renderFlows(); }
-      function onEnd() { dragging = false; el.classList.remove('dragging'); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); autoSave(); }
-      el.addEventListener('mousedown', onStart); el.addEventListener('touchstart', onStart, { passive: false });
-    }
-
-    // === FLOWS ===
-    function renderFlows() {
-      const svg = document.getElementById('diagramSvg');
-      svg.innerHTML = '';
-      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-      FLOW_COLORS.forEach((c, i) => { const m = document.createElementNS('http://www.w3.org/2000/svg', 'marker'); m.setAttribute('id', `arrow-${i}`); m.setAttribute('markerWidth', '8'); m.setAttribute('markerHeight', '8'); m.setAttribute('refX', '7'); m.setAttribute('refY', '3'); m.setAttribute('orient', 'auto'); const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'); path.setAttribute('d', 'M0,0 L0,6 L8,3 Z'); path.setAttribute('fill', c); m.appendChild(path); defs.appendChild(m); });
-      svg.appendChild(defs);
-      
-      state.flows.forEach((flow, fi) => {
-        const color = FLOW_COLORS[fi % FLOW_COLORS.length];
-        flow.steps.forEach((step, si) => {
-          const fromP = state.participants[step.from], toP = state.participants[step.to];
-          if (!fromP || !toP) return;
-          
-          // Check for saved control point
-          const savedCP = state.savedControlPoints?.[`${fi}-${si}`];
-          if (step.controlX === null) {
-            if (savedCP) { step.controlX = savedCP.x; step.controlY = savedCP.y; }
-            else {
-              const mx = (fromP.x + toP.x) / 2, my = (fromP.y + toP.y) / 2;
-              const dx = toP.x - fromP.x, dy = toP.y - fromP.y;
-              const len = Math.sqrt(dx*dx + dy*dy) || 1;
-              const offset = (si - (flow.steps.length - 1) / 2) * 45;
-              step.controlX = mx + (-dy / len) * offset;
-              step.controlY = my + (dx / len) * offset;
-            }
-          }
-          
-          const fromE = getBoxEdge(fromP, step.controlX, step.controlY);
-          const toE = getBoxEdge(toP, step.controlX, step.controlY);
-          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          g.setAttribute('transform', `translate(${state.pan.x}, ${state.pan.y}) scale(${state.zoom})`);
-          
-          const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+ = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           pathEl.setAttribute('d', `M ${fromE.x},${fromE.y} Q ${step.controlX},${step.controlY} ${toE.x},${toE.y}`);
           pathEl.setAttribute('stroke', color); pathEl.classList.add('flow-path'); pathEl.setAttribute('marker-end', `url(#arrow-${fi % FLOW_COLORS.length})`);
           g.appendChild(pathEl);
           
-          // Badge
           const badgePos = bezierPoint(0.15, fromE, { x: step.controlX, y: step.controlY }, toE);
           const badgeNorm = normalize({ x: -(step.controlY - fromE.y), y: step.controlX - fromE.x });
           const badge = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -1280,7 +782,6 @@ Generate a domain story for:`;
           bt.setAttribute('text-anchor', 'middle'); bt.classList.add('step-badge'); bt.textContent = `${flow.number}.${si + 1}`;
           g.appendChild(bt);
           
-          // Action label
           if (step.action) {
             const labelPos = bezierPoint(0.5, fromE, { x: step.controlX, y: step.controlY }, toE);
             const labelDeriv = bezierDerivative(0.5, fromE, { x: step.controlX, y: step.controlY }, toE);
@@ -1294,7 +795,6 @@ Generate a domain story for:`;
             tx.setAttribute('x', lx); tx.setAttribute('y', ly + 3); tx.setAttribute('text-anchor', 'middle'); tx.classList.add('flow-label'); tx.textContent = step.action; g.appendChild(tx);
           }
           
-          // Work object
           if (step.workObject) {
             const woPos = bezierPoint(0.8, fromE, { x: step.controlX, y: step.controlY }, toE);
             const woNorm = normalize({ x: -(toE.y - step.controlY), y: toE.x - step.controlX });
@@ -1306,7 +806,6 @@ Generate a domain story for:`;
             t.setAttribute('x', wx); t.setAttribute('y', wy + 3); t.setAttribute('text-anchor', 'middle'); t.classList.add('work-object-text'); t.textContent = step.workObject; g.appendChild(t);
           }
           
-          // Annotation
           if (step.annotation) {
             const annT = step.workObject ? 0.65 : 0.75;
             const annPos = bezierPoint(annT, fromE, { x: step.controlX, y: step.controlY }, toE);
@@ -1319,7 +818,6 @@ Generate a domain story for:`;
             t.setAttribute('x', ax); t.setAttribute('y', ay + 3); t.setAttribute('text-anchor', 'middle'); t.classList.add('annotation-text'); t.textContent = step.annotation; g.appendChild(t);
           }
           
-          // Control handle
           const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           handle.setAttribute('cx', step.controlX); handle.setAttribute('cy', step.controlY); handle.setAttribute('r', 6); handle.classList.add('control-handle');
           g.appendChild(handle); makeHandleDraggable(handle, step);
@@ -1344,15 +842,41 @@ Generate a domain story for:`;
 
     // === STEPS ===
     function renderSteps() {
-      const stepsHTML = state.flows.length ? state.flows.map((f, fi) => `<div class="flow-section"><div class="flow-header"><div class="flow-badge" style="background:${FLOW_COLORS[fi % FLOW_COLORS.length]}">${f.number}</div><div class="flow-title">${f.title}</div></div>${f.steps.map((s, si) => {
-        const matchesSearch = state.searchQuery && (s.from.toLowerCase().includes(state.searchQuery) || s.to.toLowerCase().includes(state.searchQuery) || s.action.toLowerCase().includes(state.searchQuery));
-        return `<div class="step-item${matchesSearch ? ' highlighted' : ''}" data-from="${s.from}" data-to="${s.to}"><div class="step-header"><span class="step-number" style="background:${FLOW_COLORS[fi % FLOW_COLORS.length]}">${si + 1}</span><div class="step-content"><span class="step-actors"><strong>${s.from}</strong> → <strong>${s.to}</strong></span>${s.workObject ? `<span class="step-work-object">${s.workObject}</span>` : ''}${s.action ? `<div class="step-action">${s.action}</div>` : ''}${s.annotation ? `<div class="step-annotation">${s.annotation}</div>` : ''}</div></div></div>`;
-      }).join('')}</div>`).join('') : '<div class="empty-state"><span class="material-icons">format_list_numbered</span><p>Steps will appear here</p></div>';
+      const visible = getVisibleDomains();
+      let html = '';
       
-      document.getElementById('stepsContainer').innerHTML = stepsHTML;
-      document.getElementById('desktopStepsContainer').innerHTML = stepsHTML;
+      visible.forEach((domain, di) => {
+        // Domain header with notes
+        html += `<div class="domain-header" style="background:${domain.color}"><h2><span class="material-icons">folder</span>${domain.title}</h2></div>`;
+        
+        // Notes section
+        if (domain.notes.length > 0) {
+          html += '<div class="domain-notes-section">';
+          html += '<div class="domain-notes-title"><span class="material-icons">sticky_note_2</span> Notes & Requirements</div>';
+          domain.notes.forEach(note => {
+            const noteType = NOTE_TYPES[note.type] || NOTE_TYPES.note;
+            html += `<div class="domain-note"><div class="domain-note-tag ${note.type}"><span class="material-icons">${noteType.icon}</span> ${noteType.label}</div><div class="domain-note-content">${note.content}</div></div>`;
+          });
+          html += '</div>';
+        }
+        
+        // Flows
+        const domainFlows = state.flows.filter(f => f.domainTitle === domain.title);
+        domainFlows.forEach((f, fi) => {
+          const color = FLOW_COLORS[fi % FLOW_COLORS.length];
+          html += `<div class="flow-section"><div class="flow-header"><div class="flow-badge" style="background:${color}">${f.number}</div><div class="flow-title">${f.title}</div></div>`;
+          f.steps.forEach((s, si) => {
+            html += `<div class="step-item" data-from="${s.from}" data-to="${s.to}"><div class="step-header"><span class="step-number" style="background:${color}">${si + 1}</span><div class="step-content"><span class="step-actors"><strong>${s.from}</strong> → <strong>${s.to}</strong></span>${s.workObject ? `<span class="step-work-object">${s.workObject}</span>` : ''}${s.action ? `<div class="step-action">${s.action}</div>` : ''}${s.annotation ? `<div class="step-annotation">${s.annotation}</div>` : ''}</div></div></div>`;
+          });
+          html += '</div>';
+        });
+      });
       
-      // Click to highlight actors
+      if (!html) html = '<div class="empty-state"><span class="material-icons">format_list_numbered</span><p>Steps will appear here</p></div>';
+      
+      document.getElementById('stepsContainer').innerHTML = html;
+      document.getElementById('desktopStepsContainer').innerHTML = html;
+      
       document.querySelectorAll('.step-item').forEach(item => {
         item.onclick = () => highlightActors(item.dataset.from, item.dataset.to);
       });
@@ -1364,70 +888,29 @@ Generate a domain story for:`;
     
     function highlightActors(from, to) {
       document.querySelectorAll('.participant').forEach(el => el.classList.remove('highlighted'));
-      [from, to].forEach(name => {
-        const p = state.participants[name];
-        if (p?.element) p.element.classList.add('highlighted');
+      Object.values(state.participants).forEach(p => {
+        if (p.displayName === from || p.displayName === to) {
+          p.element?.classList.add('highlighted');
+        }
       });
       setTimeout(() => document.querySelectorAll('.participant').forEach(el => el.classList.remove('highlighted')), 2000);
     }
 
-    // === SEARCH ===
     function performSearch(query) {
-      state.searchQuery = query.toLowerCase();
-      document.getElementById('searchInput').value = query;
-      document.getElementById('mobileSearchInput').value = query;
-      
-      if (!query) {
-        document.getElementById('searchResults').textContent = '';
-        document.getElementById('mobileSearchResults').textContent = '';
-      } else {
-        const actorMatches = Object.keys(state.participants).filter(n => n.toLowerCase().includes(query)).length;
-        const stepMatches = state.flows.reduce((c, f) => c + f.steps.filter(s => s.from.toLowerCase().includes(query) || s.to.toLowerCase().includes(query) || s.action.toLowerCase().includes(query)).length, 0);
-        const result = `${actorMatches} actors, ${stepMatches} steps`;
-        document.getElementById('searchResults').textContent = result;
-        document.getElementById('mobileSearchResults').textContent = result;
-      }
-      renderParticipants();
-      renderSteps();
-    }
-
-    // === MINIMAP ===
-    function updateMinimap() {
-      if (!isDesktop()) return;
-      const content = document.getElementById('minimapContent');
-      const actors = Object.values(state.participants);
-      if (!actors.length) { content.innerHTML = ''; return; }
-      
-      const minX = Math.min(...actors.map(a => a.x)) - 50;
-      const maxX = Math.max(...actors.map(a => a.x)) + 50;
-      const minY = Math.min(...actors.map(a => a.y)) - 50;
-      const maxY = Math.max(...actors.map(a => a.y)) + 50;
-      const scaleX = 150 / (maxX - minX || 1);
-      const scaleY = 100 / (maxY - minY || 1);
-      const scale = Math.min(scaleX, scaleY);
-      
-      content.innerHTML = actors.map(a => {
-        const x = (a.x - minX) * scale;
-        const y = (a.y - minY) * scale;
-        return `<div class="minimap-dot" style="left:${x}px;top:${y}px"></div>`;
-      }).join('');
-    }
-    
-    function toggleMinimap() {
-      state.minimapVisible = !state.minimapVisible;
-      document.getElementById('minimap').classList.toggle('visible', state.minimapVisible);
+      // Simple filter for now
+      document.getElementById('mobileSearchResults').textContent = query ? 'Filtering...' : '';
     }
 
     // === ZOOM & PAN ===
-    function setZoom(z) { state.zoom = Math.max(0.3, Math.min(2, z)); document.getElementById('zoomIndicator').textContent = `${Math.round(state.zoom * 100)}%`; renderParticipants(); renderFlows(); }
+    function setZoom(z) { state.zoom = Math.max(0.2, Math.min(2, z)); document.getElementById('zoomIndicator').textContent = `${Math.round(state.zoom * 100)}%`; renderParticipants(); renderFlows(); }
     
     function fitToScreen() {
       const ps = Object.values(state.participants);
       if (!ps.length) return;
       const rect = document.getElementById('diagramContainer').getBoundingClientRect();
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      ps.forEach(p => { minX = Math.min(minX, p.x - 60); maxX = Math.max(maxX, p.x + 60); minY = Math.min(minY, p.y - 45); maxY = Math.max(maxY, p.y + 45); });
-      const w = maxX - minX, h = maxY - minY, pad = 60;
+      ps.forEach(p => { minX = Math.min(minX, p.x - 70); maxX = Math.max(maxX, p.x + 70); minY = Math.min(minY, p.y - 50); maxY = Math.max(maxY, p.y + 50); });
+      const w = maxX - minX, h = maxY - minY, pad = 80;
       state.zoom = Math.min((rect.width - pad*2) / w, (rect.height - pad*2) / h, 1.5);
       state.pan.x = (rect.width - w * state.zoom) / 2 - minX * state.zoom;
       state.pan.y = (rect.height - h * state.zoom) / 2 - minY * state.zoom;
@@ -1443,7 +926,7 @@ Generate a domain story for:`;
       container.addEventListener('touchend', () => { lastDist = 0; });
     }
 
-    // === EXPORT / IMPORT / SHARE ===
+    // === EXPORT / IMPORT ===
     async function exportPNG() {
       showToast('Preparing export...');
       const exportContainer = document.getElementById('exportContainer');
@@ -1451,17 +934,17 @@ Generate a domain story for:`;
       
       const diagramClone = diagramContainer.cloneNode(true);
       diagramClone.style.position = 'relative';
-      diagramClone.style.width = '1400px';
-      diagramClone.style.height = '900px';
-      diagramClone.querySelectorAll('.control-handle, .diagram-controls, .zoom-indicator, .empty-state, .diagram-toolbar, .minimap').forEach(el => el.remove());
+      diagramClone.style.width = '1600px';
+      diagramClone.style.height = '1000px';
+      diagramClone.querySelectorAll('.control-handle, .diagram-controls, .zoom-indicator, .empty-state, .diagram-toolbar, .story-selector').forEach(el => el.remove());
       
       const stepsSection = document.createElement('div');
-      stepsSection.style.cssText = 'border-top:2px solid #e2e8f0;padding:20px;width:1400px;background:white;';
-      stepsSection.innerHTML = '<div style="font-size:18px;font-weight:600;margin-bottom:16px;">Steps</div>' + document.getElementById('stepsContainer').innerHTML;
+      stepsSection.style.cssText = 'border-top:2px solid #e2e8f0;padding:20px;width:1600px;background:white;';
+      stepsSection.innerHTML = document.getElementById('stepsContainer').innerHTML;
       
       exportContainer.innerHTML = '';
       exportContainer.style.left = '0';
-      exportContainer.style.width = '1440px';
+      exportContainer.style.width = '1640px';
       exportContainer.appendChild(diagramClone);
       exportContainer.appendChild(stepsSection);
       
@@ -1475,13 +958,8 @@ Generate a domain story for:`;
     }
     
     function exportJSON() {
-      const data = {
-        version: 1,
-        text: document.getElementById('storyInput').value,
-        positions: {},
-        controlPoints: {}
-      };
-      Object.entries(state.participants).forEach(([name, p]) => { data.positions[name] = { x: p.x, y: p.y }; });
+      const data = { version: 2, text: document.getElementById('storyInput').value, positions: {}, controlPoints: {} };
+      Object.entries(state.participants).forEach(([key, p]) => { data.positions[p.displayName] = { x: p.x, y: p.y }; });
       state.flows.forEach((f, fi) => f.steps.forEach((s, si) => {
         if (s.controlX !== null) data.controlPoints[`${fi}-${si}`] = { x: s.controlX, y: s.controlY };
       }));
@@ -1537,21 +1015,26 @@ Generate a domain story for:`;
 
     // === KEYBOARD ===
     function handleKeyboard(e) {
-      // Global shortcuts
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'e') { e.preventDefault(); exportPNG(); }
         else if (e.key === 'l') { e.preventDefault(); applyLayout('flow'); }
         else if (e.key === 'd') { e.preventDefault(); toggleDarkMode(); }
-        else if (e.key === 'f') { e.preventDefault(); document.getElementById(isDesktop() ? 'searchInput' : 'mobileSearchInput').focus(); }
       }
       if (e.key === 'Escape') {
         closeModal('helpModal'); closeModal('shortcutsModal'); closeModal('templatesModal'); closeModal('iconPickerOverlay');
-        performSearch('');
       }
-      if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-        if (e.key === '1' && document.activeElement.tagName !== 'TEXTAREA') switchTab('editor');
-        else if (e.key === '2' && document.activeElement.tagName !== 'TEXTAREA') switchTab('diagram');
-        else if (e.key === '3' && document.activeElement.tagName !== 'TEXTAREA') switchTab('steps');
+      // Arrow keys to switch domains
+      if (e.key === 'ArrowLeft' && state.domains.length > 1 && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        state.currentDomain = state.currentDomain <= 0 ? state.domains.length - 1 : state.currentDomain - 1;
+        updateVisibleDomain();
+        renderStorySelector();
+      }
+      if (e.key === 'ArrowRight' && state.domains.length > 1 && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        state.currentDomain = state.currentDomain >= state.domains.length - 1 ? -1 : state.currentDomain + 1;
+        updateVisibleDomain();
+        renderStorySelector();
       }
     }
     
@@ -1584,18 +1067,23 @@ Generate a domain story for:`;
       const ed = document.getElementById('storyInput'), pos = ed.selectionStart, text = ed.value, lineStart = text.lastIndexOf('\n', pos - 1) + 1, line = text.slice(lineStart, pos);
       const iconM = line.match(/\((\w*)$/);
       if (iconM) { const s = iconM[1].toLowerCase(), icons = (s ? ICON_CATEGORIES.suggested.filter(i => i.includes(s)) : ICON_CATEGORIES.suggested).slice(0, 6); if (icons.length) { const rect = ed.getBoundingClientRect(); showAutocomplete(icons.map(i => ({ icon: i, name: i, value: i + ')' })), rect.left + 10, rect.top + 50); return; } }
-      const actorM = line.match(/(?:^|,)\s*(\w+)$/);
-      if (actorM && !line.startsWith('@') && !line.startsWith('#')) { const s = actorM[1].toLowerCase(), actors = Object.keys(state.participants).filter(n => n.toLowerCase().includes(s)).slice(0, 5); if (actors.length) { const rect = ed.getBoundingClientRect(); showAutocomplete(actors.map(n => ({ icon: state.participants[n].icon, name: n, value: n })), rect.left + 10, rect.top + 50); return; } }
       hideAutocomplete();
     }
 
     // === UPDATE ===
     function update() {
       const input = document.getElementById('storyInput').value;
-      const { participants, flows, errors } = parseDomainStory(input);
-      state.flows = flows; state.errors = errors;
-      updateParticipants(participants);
-      renderFlows(); renderSteps(); validate();
+      const { domains, errors } = parseDomainStory(input);
+      state.domains = domains;
+      state.errors = errors;
+      
+      // Reset current domain if needed
+      if (state.currentDomain >= state.domains.length) state.currentDomain = -1;
+      
+      updateVisibleDomain();
+      renderStorySelector();
+      validate();
+      
       document.getElementById('emptyState').style.display = Object.keys(state.participants).length ? 'none' : 'flex';
     }
 
@@ -1603,15 +1091,16 @@ Generate a domain story for:`;
     function switchTab(id) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.querySelector(`.tab[data-panel="${id}"]`)?.classList.add('active'); document.getElementById(`${id}-panel`).classList.add('active'); if (id === 'diagram') setTimeout(fitToScreen, 80); }
     function showToast(msg) { document.querySelector('.toast')?.remove(); const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
     function insertAtCursor(text) { const ed = document.getElementById('storyInput'), pos = ed.selectionStart; ed.value = ed.value.slice(0, pos) + text + ed.value.slice(ed.selectionEnd); ed.selectionStart = ed.selectionEnd = pos + text.length; ed.focus(); saveHistory(); update(); autoSave(); }
-    function insertActor() { const ed = document.getElementById('storyInput'), text = ed.value; let pos = 0; const fm = text.match(/^##/m); if (fm) pos = text.indexOf(fm[0]); else pos = text.length; const tmpl = '@NewActor (person)\n'; ed.value = text.slice(0, pos) + tmpl + text.slice(pos); ed.selectionStart = pos + 1; ed.selectionEnd = pos + 9; ed.focus(); saveHistory(); update(); autoSave(); }
-    function insertFlow() { const ed = document.getElementById('storyInput'); ed.value += '\n\n## New Flow\n'; ed.selectionStart = ed.value.length - 9; ed.selectionEnd = ed.value.length - 1; ed.focus(); saveHistory(); update(); autoSave(); }
-    function insertStep() { const actors = Object.keys(state.participants); insertAtCursor('\n' + (actors.length >= 2 ? `${actors[0]}, action, ${actors[1]}` : 'Actor1, action, Actor2')); }
+    function insertDomain() { insertAtCursor('\n# New Domain Story\n> [user-story] As a user I want...\n\n'); }
+    function insertActor() { insertAtCursor('\n@NewActor (person)\n'); }
+    function insertFlow() { insertAtCursor('\n## New Flow\n'); }
+    function insertNote() { insertAtCursor('\n> [note] Your note here\n'); }
+    function insertStep() { insertAtCursor('\nActor1, action, Actor2\n'); }
     
     function openHelp() { document.getElementById('helpModal').classList.add('active'); document.getElementById('llmPrompt').innerHTML = `<button class="btn btn-sm btn-secondary copy-btn-float" id="copyLlmPrompt"><span class="material-icons">content_copy</span> Copy</button>${LLM_PROMPT.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}`; document.getElementById('copyLlmPrompt').onclick = () => { navigator.clipboard.writeText(LLM_PROMPT); showToast('Copied!'); }; }
     function openTemplates() { document.getElementById('templatesModal').classList.add('active'); document.getElementById('templateGrid').innerHTML = TEMPLATES.map(t => `<div class="template-card" data-id="${t.id}"><h4><span class="material-icons">${t.icon}</span> ${t.title}</h4><p>${t.desc}</p></div>`).join(''); document.querySelectorAll('.template-card').forEach(card => card.onclick = () => { const tmpl = TEMPLATES.find(t => t.id === card.dataset.id); document.getElementById('storyInput').value = tmpl.content; saveHistory(); update(); closeModal('templatesModal'); autoSave(); showToast('Template loaded!'); }); }
     function openIconPicker() { document.getElementById('iconPickerOverlay').classList.add('active'); document.getElementById('iconSearch').value = ''; renderIconGrid('suggested'); }
 
-    // Initialize on load
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
