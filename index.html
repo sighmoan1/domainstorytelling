@@ -37,7 +37,10 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+    
+    /* Mobile-first layout */
     .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+    
     .header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -46,13 +49,12 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      flex-shrink: 0;
     }
     .header h1 { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
     .header h1 .material-icons { color: var(--primary); font-size: 22px; }
     .header-actions { display: flex; gap: 4px; }
+    
     .btn {
       display: inline-flex;
       align-items: center;
@@ -71,16 +73,21 @@
     .btn-sm { padding: 6px 10px; font-size: 13px; border-radius: var(--radius-sm); }
     .btn-sm .material-icons { font-size: 16px; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:active { background: var(--primary-dark); transform: scale(0.97); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-primary:active { transform: scale(0.97); }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:active { background: var(--surface-dim); transform: scale(0.97); }
+    .btn-secondary:hover { background: var(--surface-dim); }
+    .btn-secondary:active { transform: scale(0.97); }
     .btn-ghost { background: transparent; color: var(--text-muted); }
-    .btn-ghost:active { background: var(--surface-alt); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-alt); color: var(--text); }
     .btn .material-icons { font-size: 20px; }
+    
+    /* Mobile tabs */
     .tabs {
       display: flex;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
     .tab {
       flex: 1;
@@ -111,8 +118,15 @@
     }
     .tab .material-icons { font-size: 18px; }
     .tab-badge { background: var(--danger); color: white; font-size: 10px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; }
-    .panel { flex: 1; overflow: hidden; display: none; }
-    .panel.active { display: flex; flex-direction: column; }
+    
+    /* Main content area */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* Panels - mobile uses tabs */
+    .panel { flex: 1; overflow: hidden; display: none; flex-direction: column; }
+    .panel.active { display: flex; }
+    
+    /* Editor panel */
     .editor-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .editor-toolbar {
       padding: 6px 10px;
@@ -122,6 +136,7 @@
       gap: 4px;
       overflow-x: auto;
       align-items: center;
+      flex-shrink: 0;
     }
     .toolbar-divider { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
     .editor-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
@@ -146,6 +161,7 @@
       gap: 6px;
       border-top: 1px solid var(--border);
       background: var(--surface);
+      flex-shrink: 0;
     }
     .validation-bar.success { background: var(--success-light); color: #065f46; }
     .validation-bar.error { background: var(--danger-light); color: #991b1b; }
@@ -174,7 +190,7 @@
       border-bottom: 1px solid var(--border);
     }
     .autocomplete-item:last-child { border-bottom: none; }
-    .autocomplete-item:active, .autocomplete-item.selected { background: var(--primary-light); }
+    .autocomplete-item:hover, .autocomplete-item.selected { background: var(--primary-light); }
     .autocomplete-item .material-icons { font-size: 20px; color: var(--primary); }
     .autocomplete-item-name { font-size: 13px; font-weight: 500; }
     .quick-bar {
@@ -184,6 +200,7 @@
       display: flex;
       gap: 6px;
       overflow-x: auto;
+      flex-shrink: 0;
     }
     .quick-chip {
       display: inline-flex;
@@ -198,8 +215,10 @@
       white-space: nowrap;
       -webkit-tap-highlight-color: transparent;
     }
-    .quick-chip:active { background: var(--primary-light); border-color: var(--primary); transform: scale(0.96); }
+    .quick-chip:hover { background: var(--primary-light); border-color: var(--primary); }
     .quick-chip .material-icons { font-size: 16px; color: var(--primary); }
+    
+    /* Diagram panel */
     .diagram-container { flex: 1; overflow: hidden; position: relative; background: var(--surface); }
     .diagram-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
     .diagram-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -218,6 +237,7 @@
       max-width: 120px;
       transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s;
     }
+    .participant:hover { box-shadow: var(--shadow-lg); }
     .participant:active, .participant.dragging {
       box-shadow: var(--shadow-lg);
       border-color: var(--primary);
@@ -267,6 +287,8 @@
     .work-object-text { font-size: 9px; font-weight: 500; fill: #be185d; }
     .control-handle { fill: var(--danger); stroke: white; stroke-width: 2; cursor: move; pointer-events: all; opacity: 0.8; }
     .hide-handles .control-handle { display: none; }
+    
+    /* Steps panel */
     .steps-container { flex: 1; overflow-y: auto; padding: 14px; }
     .flow-section { margin-bottom: 20px; }
     .flow-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -339,6 +361,8 @@
     }
     .empty-state .material-icons { font-size: 56px; margin-bottom: 12px; opacity: 0.4; }
     .empty-state p { font-size: 14px; margin-bottom: 16px; }
+    
+    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -432,10 +456,12 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .template-card:active { border-color: var(--primary); background: var(--primary-light); transform: scale(0.98); }
+    .template-card:hover { border-color: var(--primary); background: var(--primary-light); }
     .template-card h4 { font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
     .template-card h4 .material-icons { font-size: 18px; color: var(--primary); }
     .template-card p { font-size: 11px; color: var(--text-muted); }
+    
+    /* Icon picker */
     .icon-picker-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 200; display: none; align-items: flex-end; }
     .icon-picker-overlay.active { display: flex; }
     .icon-picker {
@@ -486,9 +512,10 @@
       text-align: center;
       border: 1px solid transparent;
     }
-    .icon-item:active { background: var(--primary-light); border-color: var(--primary); }
+    .icon-item:hover { background: var(--primary-light); border-color: var(--primary); }
     .icon-item .material-icons { font-size: 26px; color: var(--text); margin-bottom: 3px; }
     .icon-item span:last-child { font-size: 9px; color: var(--text-muted); word-break: break-all; line-height: 1.15; }
+    
     .toast {
       position: fixed;
       bottom: 90px;
@@ -504,16 +531,121 @@
       box-shadow: var(--shadow-lg);
     }
     @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-    @media (min-width: 768px) {
-      .app { flex-direction: row; flex-wrap: wrap; }
-      .header { width: 100%; }
+    
+    /* DESKTOP LAYOUT */
+    @media (min-width: 900px) {
       .tabs { display: none; }
-      .panel { display: flex !important; flex: 1; min-width: 280px; }
-      .panel.editor-panel { max-width: 400px; border-right: 1px solid var(--border); }
+      .main-content { flex-direction: row; }
+      
+      /* Editor on left */
+      .panel.editor-panel {
+        display: flex !important;
+        width: 320px;
+        min-width: 280px;
+        max-width: 400px;
+        border-right: 1px solid var(--border);
+        resize: horizontal;
+        overflow: auto;
+      }
+      
+      /* Diagram + Steps on right */
+      .panel.diagram-panel {
+        display: flex !important;
+        flex: 1;
+        flex-direction: column;
+      }
+      
+      .panel.steps-panel {
+        display: none !important; /* Steps shown inside diagram panel on desktop */
+      }
+      
+      /* Desktop diagram area with steps below */
+      .desktop-right-pane {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+      }
+      
+      .diagram-container {
+        flex: 1;
+        min-height: 300px;
+      }
+      
+      .desktop-steps-section {
+        border-top: 1px solid var(--border);
+        max-height: 250px;
+        overflow-y: auto;
+        background: var(--surface-dim);
+      }
+      
+      .desktop-steps-section .steps-container {
+        padding: 12px 16px;
+      }
+      
+      .desktop-steps-section .flow-section {
+        margin-bottom: 12px;
+      }
+      
+      .desktop-steps-section .step-item {
+        padding: 8px 10px;
+        margin-bottom: 4px;
+      }
+      
+      /* Collapse/expand toggle */
+      .steps-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+      .steps-toggle:hover { background: var(--surface-dim); }
+      .steps-toggle .material-icons { font-size: 20px; transition: transform 0.2s; }
+      .steps-toggle.collapsed .material-icons { transform: rotate(180deg); }
+      
       .modal { border-radius: 20px; max-height: 70vh; margin: auto; }
       .icon-picker { border-radius: 20px; max-height: 55vh; max-width: 480px; margin: auto; }
     }
+    
+    /* Large desktop */
+    @media (min-width: 1200px) {
+      .panel.editor-panel {
+        width: 380px;
+      }
+      .desktop-steps-section {
+        max-height: 300px;
+      }
+    }
+    
     .measure-svg { position: absolute; visibility: hidden; pointer-events: none; }
+    
+    /* Export container - hidden normally */
+    .export-container {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: white;
+      padding: 20px;
+    }
+    .export-container .export-diagram {
+      margin-bottom: 20px;
+    }
+    .export-container .export-steps {
+      border-top: 2px solid var(--border);
+      padding-top: 20px;
+    }
+    .export-container .export-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
   </style>
 </head>
 <body>
@@ -527,68 +659,91 @@
         <button class="btn btn-primary btn-icon" id="exportBtn" title="Export"><span class="material-icons">download</span></button>
       </div>
     </header>
+    
+    <!-- Mobile tabs -->
     <nav class="tabs">
       <button class="tab active" data-panel="editor"><span class="material-icons">edit_note</span>Edit<span class="tab-badge" id="errorBadge" style="display:none">0</span></button>
       <button class="tab" data-panel="diagram"><span class="material-icons">schema</span>Diagram</button>
       <button class="tab" data-panel="steps"><span class="material-icons">list</span>Steps</button>
     </nav>
-    <section class="panel editor-panel active" id="editor-panel">
-      <div class="editor-container">
-        <div class="editor-toolbar">
-          <button class="btn btn-ghost btn-sm" id="undoBtn" title="Undo"><span class="material-icons">undo</span></button>
-          <button class="btn btn-ghost btn-sm" id="redoBtn" title="Redo"><span class="material-icons">redo</span></button>
-          <span class="toolbar-divider"></span>
-          <button class="btn btn-ghost btn-sm" id="insertActorBtn" title="Add Actor"><span class="material-icons">person_add</span></button>
-          <button class="btn btn-ghost btn-sm" id="insertFlowBtn" title="Add Flow"><span class="material-icons">playlist_add</span></button>
-          <span class="toolbar-divider"></span>
-          <button class="btn btn-ghost btn-sm" id="clearBtn" title="Clear"><span class="material-icons">delete_outline</span></button>
-        </div>
-        <div class="editor-wrapper">
-          <textarea class="editor" id="storyInput" placeholder="Write your domain story...
+    
+    <div class="main-content">
+      <!-- Editor Panel -->
+      <section class="panel editor-panel active" id="editor-panel">
+        <div class="editor-container">
+          <div class="editor-toolbar">
+            <button class="btn btn-ghost btn-sm" id="undoBtn" title="Undo"><span class="material-icons">undo</span></button>
+            <button class="btn btn-ghost btn-sm" id="redoBtn" title="Redo"><span class="material-icons">redo</span></button>
+            <span class="toolbar-divider"></span>
+            <button class="btn btn-ghost btn-sm" id="insertActorBtn" title="Add Actor"><span class="material-icons">person_add</span></button>
+            <button class="btn btn-ghost btn-sm" id="insertFlowBtn" title="Add Flow"><span class="material-icons">playlist_add</span></button>
+            <span class="toolbar-divider"></span>
+            <button class="btn btn-ghost btn-sm" id="clearBtn" title="Clear"><span class="material-icons">delete_outline</span></button>
+          </div>
+          <div class="editor-wrapper">
+            <textarea class="editor" id="storyInput" placeholder="Write your domain story...
 
 @Customer (person)
 @Cart (shopping_cart)
 
 ## Checkout
 Customer, adds item to, Cart"></textarea>
-          <div class="autocomplete" id="autocomplete"></div>
+            <div class="autocomplete" id="autocomplete"></div>
+          </div>
+          <div class="validation-bar" id="validationBar">
+            <span class="material-icons">check_circle</span>
+            <span id="validationText">Ready</span>
+          </div>
+          <div class="quick-bar">
+            <span class="quick-chip" data-action="actor"><span class="material-icons">person_add</span> Actor</span>
+            <span class="quick-chip" data-action="flow"><span class="material-icons">arrow_forward</span> Flow</span>
+            <span class="quick-chip" data-action="step"><span class="material-icons">add</span> Step</span>
+            <span class="quick-chip" data-action="note"><span class="material-icons">note_add</span> Note</span>
+            <span class="quick-chip" data-action="object"><span class="material-icons">inventory_2</span> Object</span>
+          </div>
         </div>
-        <div class="validation-bar" id="validationBar">
-          <span class="material-icons">check_circle</span>
-          <span id="validationText">Ready</span>
+      </section>
+      
+      <!-- Diagram Panel (includes steps on desktop) -->
+      <section class="panel diagram-panel" id="diagram-panel">
+        <div class="diagram-container" id="diagramContainer">
+          <div class="diagram-canvas" id="diagramCanvas"></div>
+          <svg class="diagram-svg" id="diagramSvg"></svg>
+          <div class="zoom-indicator" id="zoomIndicator">100%</div>
+          <div class="diagram-controls">
+            <button class="btn btn-secondary btn-icon" id="zoomInBtn"><span class="material-icons">add</span></button>
+            <button class="btn btn-secondary btn-icon" id="zoomOutBtn"><span class="material-icons">remove</span></button>
+            <button class="btn btn-secondary btn-icon" id="fitBtn"><span class="material-icons">fit_screen</span></button>
+          </div>
+          <div class="empty-state" id="emptyState">
+            <span class="material-icons">draw</span>
+            <p>Your diagram will appear here</p>
+            <button class="btn btn-primary" id="startEditingBtn">Start Editing</button>
+          </div>
         </div>
-        <div class="quick-bar">
-          <span class="quick-chip" data-action="actor"><span class="material-icons">person_add</span> Actor</span>
-          <span class="quick-chip" data-action="flow"><span class="material-icons">arrow_forward</span> Flow</span>
-          <span class="quick-chip" data-action="step"><span class="material-icons">add</span> Step</span>
-          <span class="quick-chip" data-action="note"><span class="material-icons">note_add</span> Note</span>
-          <span class="quick-chip" data-action="object"><span class="material-icons">inventory_2</span> Object</span>
+        <!-- Desktop steps section -->
+        <div class="desktop-steps-section" id="desktopSteps" style="display:none">
+          <div class="steps-toggle" id="stepsToggle">
+            <span>Steps</span>
+            <span class="material-icons">expand_less</span>
+          </div>
+          <div class="steps-container" id="desktopStepsContainer"></div>
         </div>
-      </div>
-    </section>
-    <section class="panel diagram-panel" id="diagram-panel">
-      <div class="diagram-container" id="diagramContainer">
-        <div class="diagram-canvas" id="diagramCanvas"></div>
-        <svg class="diagram-svg" id="diagramSvg"></svg>
-        <div class="zoom-indicator" id="zoomIndicator">100%</div>
-        <div class="diagram-controls">
-          <button class="btn btn-secondary btn-icon" id="zoomInBtn"><span class="material-icons">add</span></button>
-          <button class="btn btn-secondary btn-icon" id="zoomOutBtn"><span class="material-icons">remove</span></button>
-          <button class="btn btn-secondary btn-icon" id="fitBtn"><span class="material-icons">fit_screen</span></button>
+      </section>
+      
+      <!-- Steps Panel (mobile only) -->
+      <section class="panel steps-panel" id="steps-panel">
+        <div class="steps-container" id="stepsContainer">
+          <div class="empty-state"><span class="material-icons">format_list_numbered</span><p>Steps will appear here</p></div>
         </div>
-        <div class="empty-state" id="emptyState">
-          <span class="material-icons">draw</span>
-          <p>Your diagram will appear here</p>
-          <button class="btn btn-primary" id="startEditingBtn">Start Editing</button>
-        </div>
-      </div>
-    </section>
-    <section class="panel steps-panel" id="steps-panel">
-      <div class="steps-container" id="stepsContainer">
-        <div class="empty-state"><span class="material-icons">format_list_numbered</span><p>Steps will appear here</p></div>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
+  
+  <!-- Export container (hidden, used for rendering) -->
+  <div class="export-container" id="exportContainer"></div>
+  
+  <!-- Help Modal -->
   <div class="modal-overlay" id="helpModal">
     <div class="modal">
       <div class="modal-header">
@@ -654,6 +809,8 @@ Customer, pays, Payment "Credit card"</div>
       </div>
     </div>
   </div>
+  
+  <!-- Templates Modal -->
   <div class="modal-overlay" id="templatesModal">
     <div class="modal">
       <div class="modal-header">
@@ -665,6 +822,8 @@ Customer, pays, Payment "Credit card"</div>
       </div>
     </div>
   </div>
+  
+  <!-- Icon Picker -->
   <div class="icon-picker-overlay" id="iconPickerOverlay">
     <div class="icon-picker">
       <div class="icon-picker-header">
@@ -682,6 +841,7 @@ Customer, pays, Payment "Credit card"</div>
       <div class="icon-grid" id="iconGrid"></div>
     </div>
   </div>
+  
   <svg class="measure-svg" id="measureSvg"><text id="measureText" font-size="10"></text></svg>
   <script>
     const FLOW_COLORS = ['#6366f1', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
@@ -703,27 +863,15 @@ Customer, pays, Payment "Credit card"</div>
     const LLM_PROMPT = `Generate domain stories using comma-based syntax:
 
 ## SYNTAX
+### Actors: @ActorName (icon_name)
+### Flows: ## Flow Title
+### Steps: From, action, To
+### Work Objects: {Object}
+### Annotations: "note"
 
-### Actors:
-@ActorName (icon_name)
-@ActorName (icon_name) "note"
-
-### Flows:
-## Flow Title
-
-### Steps (comma-separated):
-From, action, To
-From, action, To {Work Object}
-From, action, To "annotation"
-
-### Icons:
-- People: person, group, support_agent, engineering
-- Systems: computer, cloud, storage, api, database
-- Business: shopping_cart, payments, store, warehouse
-- Documents: description, receipt, assignment, folder
+### Icons: person, group, computer, cloud, storage, api, shopping_cart, payments, description, receipt
 
 ## EXAMPLE
-
 @Customer (person)
 @Cart (shopping_cart)
 @Payment (payments)
@@ -734,17 +882,12 @@ Customer, adds item to, Cart {Product}
 Customer, pays via, Payment {Credit Card}
 Payment, confirms to, Customer {Receipt}
 
-## RULES
-1. Define ALL actors first with @
-2. Use ## for flow titles  
-3. Steps: From, action, To (comma separated)
-4. {Work Objects} for items passed
-5. "Annotations" for notes
-
 Generate a domain story for:`;
 
-    const state = { participants: {}, flows: [], zoom: 1, pan: { x: 0, y: 0 }, canvasSize: { width: 1200, height: 900 }, history: [], historyIndex: -1, errors: [] };
+    const state = { participants: {}, flows: [], zoom: 1, pan: { x: 0, y: 0 }, canvasSize: { width: 1200, height: 900 }, history: [], historyIndex: -1, errors: [], stepsCollapsed: false };
     let allIcons = [], autocompleteIndex = -1;
+
+    function isDesktop() { return window.innerWidth >= 900; }
 
     function saveHistory() {
       const text = document.getElementById('storyInput').value;
@@ -784,52 +927,35 @@ Generate a domain story for:`;
         if (!line) return;
         const lineNum = lineIdx + 1;
         
-        // Actor definition
         if (line.startsWith('@')) {
           const m = line.match(/^@(.+?)\s*\((\w+)\)\s*(?:"(.+)")?$/);
           if (m) {
             participants.push({ name: m[1].trim(), icon: m[2].trim(), annotation: m[3] || null });
             actorNames.push(m[1].trim());
           } else {
-            // Try to give helpful error
-            if (!line.includes('(')) {
-              errors.push({ line: lineNum, msg: 'Missing icon', hint: '@Name (icon)', text: line });
-            } else if (!line.match(/\(\w+\)/)) {
-              errors.push({ line: lineNum, msg: 'Invalid icon format', hint: 'Use (icon_name)', text: line });
-            } else {
-              errors.push({ line: lineNum, msg: 'Invalid actor syntax', hint: '@Name (icon)', text: line });
-            }
+            if (!line.includes('(')) errors.push({ line: lineNum, msg: 'Missing icon', hint: '@Name (icon)', text: line });
+            else if (!line.match(/\(\w+\)/)) errors.push({ line: lineNum, msg: 'Invalid icon format', hint: 'Use (icon_name)', text: line });
+            else errors.push({ line: lineNum, msg: 'Invalid actor syntax', hint: '@Name (icon)', text: line });
           }
           return;
         }
         
-        // Flow header
         if (line.startsWith('##')) {
           flowNum++;
           const title = line.replace(/^#+\s*/, '').trim();
-          if (!title) {
-            errors.push({ line: lineNum, msg: 'Flow needs a title', hint: '## Flow Name', text: line });
-          }
+          if (!title) errors.push({ line: lineNum, msg: 'Flow needs a title', hint: '## Flow Name', text: line });
           currentFlow = { number: flowNum, title: title || 'Untitled', steps: [] };
           flows.push(currentFlow);
           return;
         }
         
-        // Skip comments
         if (line.startsWith('//') || line.startsWith('#')) return;
         
-        // Step
         if (line.includes(',')) {
-          if (!currentFlow) {
-            errors.push({ line: lineNum, msg: 'Step outside of flow', hint: 'Add ## Flow Title first', text: line });
-            return;
-          }
+          if (!currentFlow) { errors.push({ line: lineNum, msg: 'Step outside of flow', hint: 'Add ## Flow Title first', text: line }); return; }
           const parsed = parseStep(line, actorNames, lineNum, errors);
-          if (parsed) {
-            currentFlow.steps.push({ ...parsed, originalLine: line, controlX: null, controlY: null });
-          }
-        } else if (line.length > 0 && !line.startsWith('@') && !line.startsWith('#')) {
-          // Non-empty line that doesn't match any pattern
+          if (parsed) currentFlow.steps.push({ ...parsed, originalLine: line, controlX: null, controlY: null });
+        } else if (line.length > 0) {
           errors.push({ line: lineNum, msg: 'Unrecognized line', hint: 'Use commas: From, action, To', text: line });
         }
       });
@@ -838,70 +964,33 @@ Generate a domain story for:`;
     }
 
     function parseStep(line, actorNames, lineNum, errors) {
-      let annotation = null, workObject = null;
-      let cleanLine = line;
-      
+      let annotation = null, workObject = null, cleanLine = line;
       const annM = cleanLine.match(/"([^"]+)"\s*$/);
       if (annM) { annotation = annM[1]; cleanLine = cleanLine.replace(annM[0], '').trim(); }
-      
       const workM = cleanLine.match(/\{([^}]+)\}\s*$/);
       if (workM) { workObject = workM[1].trim(); cleanLine = cleanLine.replace(workM[0], '').trim(); }
-      
       const parts = cleanLine.split(',').map(p => p.trim()).filter(p => p);
-      
-      if (parts.length < 2) {
-        errors.push({ line: lineNum, msg: 'Need at least 2 parts', hint: 'From, action, To', text: line });
-        return null;
-      }
-      
-      const fromName = parts[0];
-      const toName = parts[parts.length - 1];
-      
-      // Check if actors exist
+      if (parts.length < 2) { errors.push({ line: lineNum, msg: 'Need at least 2 parts', hint: 'From, action, To', text: line }); return null; }
+      const fromName = parts[0], toName = parts[parts.length - 1];
       const fromMatch = actorNames.find(n => n.toLowerCase() === fromName.toLowerCase());
       const toMatch = actorNames.find(n => n.toLowerCase() === toName.toLowerCase());
-      
-      if (!fromMatch) {
-        errors.push({ line: lineNum, msg: `Unknown actor "${fromName}"`, hint: 'Define with @' + fromName + ' (icon)', text: line });
-      }
-      if (!toMatch && toName !== fromName) {
-        errors.push({ line: lineNum, msg: `Unknown actor "${toName}"`, hint: 'Define with @' + toName + ' (icon)', text: line });
-      }
-      
-      return {
-        from: fromMatch || fromName,
-        action: parts.length > 2 ? parts.slice(1, -1).join(', ') : '',
-        to: toMatch || toName,
-        workObject,
-        annotation
-      };
+      if (!fromMatch) errors.push({ line: lineNum, msg: `Unknown actor "${fromName}"`, hint: 'Define with @' + fromName + ' (icon)', text: line });
+      if (!toMatch && toName !== fromName) errors.push({ line: lineNum, msg: `Unknown actor "${toName}"`, hint: 'Define with @' + toName + ' (icon)', text: line });
+      return { from: fromMatch || fromName, action: parts.length > 2 ? parts.slice(1, -1).join(', ') : '', to: toMatch || toName, workObject, annotation };
     }
 
     function validate() {
-      const bar = document.getElementById('validationBar');
-      const text = document.getElementById('validationText');
-      const badge = document.getElementById('errorBadge');
+      const bar = document.getElementById('validationBar'), text = document.getElementById('validationText'), badge = document.getElementById('errorBadge');
       const input = document.getElementById('storyInput').value;
-      
-      if (!input.trim()) {
-        bar.className = 'validation-bar';
-        text.innerHTML = '<span class="material-icons">edit</span> Empty - start typing';
-        badge.style.display = 'none';
-        return;
-      }
-      
+      if (!input.trim()) { bar.className = 'validation-bar'; text.innerHTML = '<span class="material-icons">edit</span> Empty - start typing'; badge.style.display = 'none'; return; }
       if (state.errors.length > 0) {
         const err = state.errors[0];
         bar.className = 'validation-bar error';
         text.innerHTML = `<span class="material-icons">error</span> Line ${err.line}: ${err.msg} <code>${err.hint}</code>`;
-        badge.textContent = state.errors.length;
-        badge.style.display = 'inline-flex';
-        return;
+        badge.textContent = state.errors.length; badge.style.display = 'inline-flex'; return;
       }
-      
       const { participants, flows } = parseDomainStory(input);
       const steps = flows.reduce((s, f) => s + f.steps.length, 0);
-      
       bar.className = 'validation-bar success';
       text.innerHTML = `<span class="material-icons">check_circle</span> ${participants.length} actors, ${flows.length} flows, ${steps} steps`;
       badge.style.display = 'none';
@@ -955,22 +1044,17 @@ Generate a domain story for:`;
       FLOW_COLORS.forEach((c, i) => { const m = document.createElementNS('http://www.w3.org/2000/svg', 'marker'); m.setAttribute('id', `arrow-${i}`); m.setAttribute('markerWidth', '8'); m.setAttribute('markerHeight', '8'); m.setAttribute('refX', '7'); m.setAttribute('refY', '3'); m.setAttribute('orient', 'auto'); const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'); path.setAttribute('d', 'M0,0 L0,6 L8,3 Z'); path.setAttribute('fill', c); m.appendChild(path); defs.appendChild(m); });
       svg.appendChild(defs);
       
-      // Global step counter for label positioning
-      let globalStepIndex = 0;
-      
       state.flows.forEach((flow, fi) => {
         const color = FLOW_COLORS[fi % FLOW_COLORS.length];
         flow.steps.forEach((step, si) => {
           const fromP = state.participants[step.from], toP = state.participants[step.to];
           if (!fromP || !toP) return;
           
-          // Calculate control point offset based on step index
           if (step.controlX === null) {
             const mx = (fromP.x + toP.x) / 2, my = (fromP.y + toP.y) / 2;
             const dx = toP.x - fromP.x, dy = toP.y - fromP.y;
             const len = Math.sqrt(dx*dx + dy*dy) || 1;
-            // Larger offsets to separate arrows more
-            const offset = (si - (flow.steps.length - 1) / 2) * 35;
+            const offset = (si - (flow.steps.length - 1) / 2) * 40;
             step.controlX = mx + (-dy / len) * offset;
             step.controlY = my + (dx / len) * offset;
           }
@@ -980,145 +1064,74 @@ Generate a domain story for:`;
           const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
           g.setAttribute('transform', `translate(${state.pan.x}, ${state.pan.y}) scale(${state.zoom})`);
           
-          // Draw path
           const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           pathEl.setAttribute('d', `M ${fromE.x},${fromE.y} Q ${step.controlX},${step.controlY} ${toE.x},${toE.y}`);
-          pathEl.setAttribute('stroke', color);
-          pathEl.classList.add('flow-path');
-          pathEl.setAttribute('marker-end', `url(#arrow-${fi % FLOW_COLORS.length})`);
+          pathEl.setAttribute('stroke', color); pathEl.classList.add('flow-path'); pathEl.setAttribute('marker-end', `url(#arrow-${fi % FLOW_COLORS.length})`);
           g.appendChild(pathEl);
           
-          // Calculate curve length for better label positioning
-          const curveLen = approximateCurveLength(fromE, { x: step.controlX, y: step.controlY }, toE);
-          
-          // Position badge near the start (t=0.15)
-          const badgeT = 0.15;
-          const badgePos = bezierPoint(badgeT, fromE, { x: step.controlX, y: step.controlY }, toE);
-          const badgeDeriv = bezierDerivative(badgeT, fromE, { x: step.controlX, y: step.controlY }, toE);
-          const badgeNorm = normalize({ x: -badgeDeriv.y, y: badgeDeriv.x });
-          const bx = badgePos.x + badgeNorm.x * 12;
-          const by = badgePos.y + badgeNorm.y * 12;
-          
+          // Badge near start
+          const badgePos = bezierPoint(0.15, fromE, { x: step.controlX, y: step.controlY }, toE);
+          const badgeNorm = normalize({ x: -(step.controlY - fromE.y), y: step.controlX - fromE.x });
+          const bx = badgePos.x + badgeNorm.x * 12, by = badgePos.y + badgeNorm.y * 12;
           const badge = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          badge.setAttribute('cx', bx); badge.setAttribute('cy', by);
-          badge.setAttribute('r', 9); badge.setAttribute('fill', color);
+          badge.setAttribute('cx', bx); badge.setAttribute('cy', by); badge.setAttribute('r', 9); badge.setAttribute('fill', color);
           g.appendChild(badge);
-          
           const bt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          bt.setAttribute('x', bx); bt.setAttribute('y', by + 3);
-          bt.setAttribute('text-anchor', 'middle');
-          bt.classList.add('step-badge');
-          bt.textContent = `${flow.number}.${si + 1}`;
+          bt.setAttribute('x', bx); bt.setAttribute('y', by + 3); bt.setAttribute('text-anchor', 'middle'); bt.classList.add('step-badge'); bt.textContent = `${flow.number}.${si + 1}`;
           g.appendChild(bt);
           
-          // Position action label at the middle (t=0.5)
+          // Action label at middle
           if (step.action) {
-            const labelT = 0.5;
-            const labelPos = bezierPoint(labelT, fromE, { x: step.controlX, y: step.controlY }, toE);
-            const labelDeriv = bezierDerivative(labelT, fromE, { x: step.controlX, y: step.controlY }, toE);
+            const labelPos = bezierPoint(0.5, fromE, { x: step.controlX, y: step.controlY }, toE);
+            const labelDeriv = bezierDerivative(0.5, fromE, { x: step.controlX, y: step.controlY }, toE);
             const labelNorm = normalize({ x: -labelDeriv.y, y: labelDeriv.x });
-            
-            // Position label on opposite side from control handle
             const controlSide = Math.sign((step.controlX - (fromE.x + toE.x)/2) * labelNorm.x + (step.controlY - (fromE.y + toE.y)/2) * labelNorm.y);
-            const labelOffset = -controlSide * 14; // Put label on opposite side
-            
-            const lx = labelPos.x + labelNorm.x * labelOffset;
-            const ly = labelPos.y + labelNorm.y * labelOffset;
+            const lx = labelPos.x + labelNorm.x * (-controlSide * 16), ly = labelPos.y + labelNorm.y * (-controlSide * 16);
             const tm = measureText(step.action, 10);
-            
             const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            bg.setAttribute('x', lx - tm.width/2 - 5);
-            bg.setAttribute('y', ly - 8);
-            bg.setAttribute('width', tm.width + 10);
-            bg.setAttribute('height', 16);
-            bg.setAttribute('rx', 3);
-            bg.classList.add('flow-label-bg');
+            bg.setAttribute('x', lx - tm.width/2 - 5); bg.setAttribute('y', ly - 8); bg.setAttribute('width', tm.width + 10); bg.setAttribute('height', 16); bg.setAttribute('rx', 3); bg.classList.add('flow-label-bg');
             g.appendChild(bg);
-            
             const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            tx.setAttribute('x', lx); tx.setAttribute('y', ly + 3);
-            tx.setAttribute('text-anchor', 'middle');
-            tx.classList.add('flow-label');
-            tx.textContent = step.action;
+            tx.setAttribute('x', lx); tx.setAttribute('y', ly + 3); tx.setAttribute('text-anchor', 'middle'); tx.classList.add('flow-label'); tx.textContent = step.action;
             g.appendChild(tx);
           }
           
-          // Position work object near the end (t=0.8)
+          // Work object near end
           if (step.workObject) {
-            const woT = 0.8;
-            const woPos = bezierPoint(woT, fromE, { x: step.controlX, y: step.controlY }, toE);
-            const woDeriv = bezierDerivative(woT, fromE, { x: step.controlX, y: step.controlY }, toE);
-            const woNorm = normalize({ x: -woDeriv.y, y: woDeriv.x });
-            
-            const wx = woPos.x + woNorm.x * 14;
-            const wy = woPos.y + woNorm.y * 14;
+            const woPos = bezierPoint(0.8, fromE, { x: step.controlX, y: step.controlY }, toE);
+            const woNorm = normalize({ x: -(toE.y - step.controlY), y: toE.x - step.controlX });
+            const wx = woPos.x + woNorm.x * 14, wy = woPos.y + woNorm.y * 14;
             const tm = measureText(step.workObject, 9);
-            
             const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            r.setAttribute('x', wx - tm.width/2 - 6);
-            r.setAttribute('y', wy - 7);
-            r.setAttribute('width', tm.width + 12);
-            r.setAttribute('height', 14);
-            r.setAttribute('rx', 3);
-            r.classList.add('work-object-box');
+            r.setAttribute('x', wx - tm.width/2 - 6); r.setAttribute('y', wy - 7); r.setAttribute('width', tm.width + 12); r.setAttribute('height', 14); r.setAttribute('rx', 3); r.classList.add('work-object-box');
             g.appendChild(r);
-            
             const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            t.setAttribute('x', wx); t.setAttribute('y', wy + 3);
-            t.setAttribute('text-anchor', 'middle');
-            t.classList.add('work-object-text');
-            t.textContent = step.workObject;
+            t.setAttribute('x', wx); t.setAttribute('y', wy + 3); t.setAttribute('text-anchor', 'middle'); t.classList.add('work-object-text'); t.textContent = step.workObject;
             g.appendChild(t);
           }
           
-          // Position annotation below work object or at end
+          // Annotation
           if (step.annotation) {
             const annT = step.workObject ? 0.65 : 0.75;
             const annPos = bezierPoint(annT, fromE, { x: step.controlX, y: step.controlY }, toE);
-            const annDeriv = bezierDerivative(annT, fromE, { x: step.controlX, y: step.controlY }, toE);
-            const annNorm = normalize({ x: -annDeriv.y, y: annDeriv.x });
-            
-            const ax = annPos.x + annNorm.x * -14;
-            const ay = annPos.y + annNorm.y * -14;
+            const annNorm = normalize({ x: -(toE.y - fromE.y), y: toE.x - fromE.x });
+            const ax = annPos.x + annNorm.x * -14, ay = annPos.y + annNorm.y * -14;
             const tm = measureText(step.annotation, 9);
-            
             const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            r.setAttribute('x', ax - tm.width/2 - 6);
-            r.setAttribute('y', ay - 7);
-            r.setAttribute('width', tm.width + 12);
-            r.setAttribute('height', 14);
-            r.setAttribute('rx', 3);
-            r.classList.add('annotation-box');
+            r.setAttribute('x', ax - tm.width/2 - 6); r.setAttribute('y', ay - 7); r.setAttribute('width', tm.width + 12); r.setAttribute('height', 14); r.setAttribute('rx', 3); r.classList.add('annotation-box');
             g.appendChild(r);
-            
             const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            t.setAttribute('x', ax); t.setAttribute('y', ay + 3);
-            t.setAttribute('text-anchor', 'middle');
-            t.classList.add('annotation-text');
-            t.textContent = step.annotation;
+            t.setAttribute('x', ax); t.setAttribute('y', ay + 3); t.setAttribute('text-anchor', 'middle'); t.classList.add('annotation-text'); t.textContent = step.annotation;
             g.appendChild(t);
           }
           
-          // Control handle at actual control point
           const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          handle.setAttribute('cx', step.controlX);
-          handle.setAttribute('cy', step.controlY);
-          handle.setAttribute('r', 6);
-          handle.classList.add('control-handle');
+          handle.setAttribute('cx', step.controlX); handle.setAttribute('cy', step.controlY); handle.setAttribute('r', 6); handle.classList.add('control-handle');
           g.appendChild(handle);
           makeHandleDraggable(handle, step);
-          
           svg.appendChild(g);
-          globalStepIndex++;
         });
       });
-    }
-    
-    function approximateCurveLength(p0, p1, p2) {
-      // Simple approximation using chord length
-      const d1 = Math.sqrt((p1.x-p0.x)**2 + (p1.y-p0.y)**2);
-      const d2 = Math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2);
-      return d1 + d2;
     }
 
     function makeHandleDraggable(h, step) {
@@ -1136,9 +1149,20 @@ Generate a domain story for:`;
     function measureText(text, size) { const el = document.getElementById('measureText'); el.setAttribute('font-size', size); el.textContent = text; return el.getBBox(); }
 
     function renderSteps() {
-      const c = document.getElementById('stepsContainer');
-      if (!state.flows.length) { c.innerHTML = '<div class="empty-state"><span class="material-icons">format_list_numbered</span><p>Steps will appear here</p></div>'; return; }
-      c.innerHTML = state.flows.map((f, fi) => `<div class="flow-section"><div class="flow-header"><div class="flow-badge" style="background:${FLOW_COLORS[fi % FLOW_COLORS.length]}">${f.number}</div><div class="flow-title">${f.title}</div></div>${f.steps.map((s, si) => `<div class="step-item"><div class="step-header"><span class="step-number" style="background:${FLOW_COLORS[fi % FLOW_COLORS.length]}">${si + 1}</span><div class="step-content"><span class="step-actors"><strong>${s.from}</strong> → <strong>${s.to}</strong></span>${s.workObject ? `<span class="step-work-object">${s.workObject}</span>` : ''}${s.action ? `<div class="step-action">${s.action}</div>` : ''}${s.annotation ? `<div class="step-annotation">${s.annotation}</div>` : ''}</div></div></div>`).join('')}</div>`).join('');
+      const stepsHTML = state.flows.length ? state.flows.map((f, fi) => `<div class="flow-section"><div class="flow-header"><div class="flow-badge" style="background:${FLOW_COLORS[fi % FLOW_COLORS.length]}">${f.number}</div><div class="flow-title">${f.title}</div></div>${f.steps.map((s, si) => `<div class="step-item"><div class="step-header"><span class="step-number" style="background:${FLOW_COLORS[fi % FLOW_COLORS.length]}">${si + 1}</span><div class="step-content"><span class="step-actors"><strong>${s.from}</strong> → <strong>${s.to}</strong></span>${s.workObject ? `<span class="step-work-object">${s.workObject}</span>` : ''}${s.action ? `<div class="step-action">${s.action}</div>` : ''}${s.annotation ? `<div class="step-annotation">${s.annotation}</div>` : ''}</div></div></div>`).join('')}</div>`).join('') : '<div class="empty-state"><span class="material-icons">format_list_numbered</span><p>Steps will appear here</p></div>';
+      
+      // Mobile steps
+      document.getElementById('stepsContainer').innerHTML = stepsHTML;
+      // Desktop steps
+      document.getElementById('desktopStepsContainer').innerHTML = stepsHTML;
+      
+      // Show/hide desktop steps section
+      const desktopSteps = document.getElementById('desktopSteps');
+      if (isDesktop() && state.flows.length > 0) {
+        desktopSteps.style.display = 'block';
+      } else if (isDesktop()) {
+        desktopSteps.style.display = 'none';
+      }
     }
 
     function showAutocomplete(items, x, y) {
@@ -1162,20 +1186,84 @@ Generate a domain story for:`;
     function update() {
       const input = document.getElementById('storyInput').value;
       const { participants, flows, errors } = parseDomainStory(input);
-      state.flows = flows;
-      state.errors = errors;
+      state.flows = flows; state.errors = errors;
       updateParticipants(participants);
-      renderFlows();
-      renderSteps();
-      validate();
+      renderFlows(); renderSteps(); validate();
       document.getElementById('emptyState').style.display = Object.keys(state.participants).length ? 'none' : 'flex';
     }
     
     function setZoom(z) { state.zoom = Math.max(0.3, Math.min(2, z)); document.getElementById('zoomIndicator').textContent = `${Math.round(state.zoom * 100)}%`; renderParticipants(); renderFlows(); }
-    function fitToScreen() { const ps = Object.values(state.participants); if (!ps.length) return; const rect = document.getElementById('diagramContainer').getBoundingClientRect(); let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity; ps.forEach(p => { minX = Math.min(minX, p.x - 60); maxX = Math.max(maxX, p.x + 60); minY = Math.min(minY, p.y - 45); maxY = Math.max(maxY, p.y + 45); }); const w = maxX - minX, h = maxY - minY, pad = 50; state.zoom = Math.min((rect.width - pad*2) / w, (rect.height - pad*2) / h, 1.5); state.pan.x = (rect.width - w * state.zoom) / 2 - minX * state.zoom; state.pan.y = (rect.height - h * state.zoom) / 2 - minY * state.zoom; document.getElementById('zoomIndicator').textContent = `${Math.round(state.zoom * 100)}%`; renderParticipants(); renderFlows(); }
+    
+    function fitToScreen() {
+      const ps = Object.values(state.participants);
+      if (!ps.length) return;
+      const rect = document.getElementById('diagramContainer').getBoundingClientRect();
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      ps.forEach(p => { minX = Math.min(minX, p.x - 60); maxX = Math.max(maxX, p.x + 60); minY = Math.min(minY, p.y - 45); maxY = Math.max(maxY, p.y + 45); });
+      const w = maxX - minX, h = maxY - minY, pad = 50;
+      state.zoom = Math.min((rect.width - pad*2) / w, (rect.height - pad*2) / h, 1.5);
+      state.pan.x = (rect.width - w * state.zoom) / 2 - minX * state.zoom;
+      state.pan.y = (rect.height - h * state.zoom) / 2 - minY * state.zoom;
+      document.getElementById('zoomIndicator').textContent = `${Math.round(state.zoom * 100)}%`;
+      renderParticipants(); renderFlows();
+    }
 
-    async function exportPNG() { const c = document.getElementById('diagramContainer'); document.body.classList.add('hide-handles'); document.getElementById('zoomIndicator').style.visibility = 'hidden'; document.querySelector('.diagram-controls').style.visibility = 'hidden'; try { const canvas = await html2canvas(c, { backgroundColor: '#ffffff', scale: 2 }); const link = document.createElement('a'); link.download = 'domain-story.png'; link.href = canvas.toDataURL('image/png'); link.click(); showToast('Exported!'); } catch (e) { showToast('Export failed'); } document.body.classList.remove('hide-handles'); document.getElementById('zoomIndicator').style.visibility = ''; document.querySelector('.diagram-controls').style.visibility = ''; }
-    function showToast(msg) { document.querySelector('.toast')?.remove(); const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+    async function exportPNG() {
+      showToast('Preparing export...');
+      
+      // Create export container with diagram + steps
+      const exportContainer = document.getElementById('exportContainer');
+      const diagramContainer = document.getElementById('diagramContainer');
+      
+      // Clone diagram
+      const diagramClone = diagramContainer.cloneNode(true);
+      diagramClone.style.position = 'relative';
+      diagramClone.style.width = '1200px';
+      diagramClone.style.height = '800px';
+      diagramClone.style.left = '0';
+      diagramClone.style.top = '0';
+      diagramClone.querySelectorAll('.control-handle').forEach(h => h.remove());
+      diagramClone.querySelectorAll('.diagram-controls, .zoom-indicator, .empty-state').forEach(el => el.remove());
+      
+      // Create steps section
+      const stepsSection = document.createElement('div');
+      stepsSection.className = 'export-steps';
+      stepsSection.innerHTML = '<div class="export-title">Steps</div>' + document.getElementById('stepsContainer').innerHTML;
+      stepsSection.style.width = '1200px';
+      stepsSection.style.padding = '20px';
+      stepsSection.style.background = 'white';
+      
+      // Build export container
+      exportContainer.innerHTML = '';
+      exportContainer.style.left = '0';
+      exportContainer.style.width = '1240px';
+      
+      const diagramWrapper = document.createElement('div');
+      diagramWrapper.className = 'export-diagram';
+      diagramWrapper.appendChild(diagramClone);
+      exportContainer.appendChild(diagramWrapper);
+      exportContainer.appendChild(stepsSection);
+      
+      // Wait for render
+      await new Promise(r => setTimeout(r, 100));
+      
+      try {
+        const canvas = await html2canvas(exportContainer, { backgroundColor: '#ffffff', scale: 2, logging: false });
+        const link = document.createElement('a');
+        link.download = 'domain-story.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('Exported!');
+      } catch (e) {
+        console.error(e);
+        showToast('Export failed');
+      }
+      
+      // Hide export container
+      exportContainer.style.left = '-9999px';
+    }
+    
+    function showToast(msg) { document.querySelector('.toast')?.remove(); const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
     function insertAtCursor(text) { const ed = document.getElementById('storyInput'), pos = ed.selectionStart; ed.value = ed.value.slice(0, pos) + text + ed.value.slice(ed.selectionEnd); ed.selectionStart = ed.selectionEnd = pos + text.length; ed.focus(); saveHistory(); update(); }
     function switchTab(id) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.querySelector(`.tab[data-panel="${id}"]`).classList.add('active'); document.getElementById(`${id}-panel`).classList.add('active'); if (id === 'diagram') setTimeout(fitToScreen, 80); }
 
@@ -1197,6 +1285,7 @@ Generate a domain story for:`;
       ed.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(() => { saveHistory(); update(); }, 150); checkAutocomplete(); });
       ed.addEventListener('keydown', e => { const ac = document.getElementById('autocomplete'); if (!ac.classList.contains('visible')) { if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); } if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); } return; } const items = ac.querySelectorAll('.autocomplete-item'); if (e.key === 'ArrowDown') { e.preventDefault(); autocompleteIndex = Math.min(autocompleteIndex + 1, items.length - 1); } else if (e.key === 'ArrowUp') { e.preventDefault(); autocompleteIndex = Math.max(autocompleteIndex - 1, 0); } else if (e.key === 'Enter' && autocompleteIndex >= 0) { e.preventDefault(); items[autocompleteIndex]?.click(); } else if (e.key === 'Escape') hideAutocomplete(); items.forEach((it, i) => it.classList.toggle('selected', i === autocompleteIndex)); });
       ed.addEventListener('blur', () => setTimeout(hideAutocomplete, 150));
+      
       document.getElementById('helpBtn').onclick = openHelp;
       document.getElementById('closeHelpBtn').onclick = () => document.getElementById('helpModal').classList.remove('active');
       document.getElementById('templatesBtn').onclick = openTemplates;
@@ -1212,19 +1301,34 @@ Generate a domain story for:`;
       document.getElementById('zoomOutBtn').onclick = () => setZoom(state.zoom - 0.2);
       document.getElementById('fitBtn').onclick = fitToScreen;
       document.getElementById('startEditingBtn').onclick = () => switchTab('editor');
+      
       document.querySelectorAll('.quick-chip').forEach(chip => chip.onclick = () => { const a = chip.dataset.action; if (a === 'actor') insertActor(); else if (a === 'flow') insertFlow(); else if (a === 'step') insertStep(); else if (a === 'note') insertNote(); else if (a === 'object') insertObject(); });
       document.getElementById('iconSearch').oninput = e => renderIconGrid('all', e.target.value);
       document.getElementById('iconCategories').onclick = e => { if (e.target.classList.contains('icon-category')) { document.querySelectorAll('.icon-category').forEach(c => c.classList.remove('active')); e.target.classList.add('active'); renderIconGrid(e.target.dataset.category, document.getElementById('iconSearch').value); } };
       document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.panel));
       document.querySelectorAll('.modal-tab').forEach(t => t.onclick = () => { document.querySelectorAll('.modal-tab').forEach(x => x.classList.remove('active')); document.querySelectorAll('.modal-panel').forEach(x => x.classList.remove('active')); t.classList.add('active'); document.getElementById(`${t.dataset.tab}-panel`).classList.add('active'); });
       ['helpModal', 'templatesModal', 'iconPickerOverlay'].forEach(id => document.getElementById(id).onclick = e => { if (e.target.id === id) document.getElementById(id).classList.remove('active'); });
+      
+      // Desktop steps toggle
+      document.getElementById('stepsToggle').onclick = function() {
+        this.classList.toggle('collapsed');
+        const container = document.getElementById('desktopStepsContainer');
+        container.style.display = this.classList.contains('collapsed') ? 'none' : 'block';
+      };
+      
+      // Pinch zoom
       let lastDist = 0;
       const container = document.getElementById('diagramContainer');
       container.addEventListener('touchstart', e => { if (e.touches.length === 2) { const dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY; lastDist = Math.sqrt(dx*dx + dy*dy); } }, { passive: true });
       container.addEventListener('touchmove', e => { if (e.touches.length === 2) { const dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY, dist = Math.sqrt(dx*dx + dy*dy); if (lastDist > 0) setZoom(state.zoom + (dist - lastDist) * 0.004); lastDist = dist; } }, { passive: true });
       container.addEventListener('touchend', () => { lastDist = 0; });
+      
+      // Handle resize
+      window.addEventListener('resize', () => { renderSteps(); if (isDesktop()) fitToScreen(); });
+      
       saveHistory();
       update();
+      if (isDesktop()) setTimeout(fitToScreen, 100);
     });
   </script>
 </body>
