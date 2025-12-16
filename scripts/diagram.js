@@ -1,0 +1,436 @@
+// Diagram rendering and manipulation
+function getActorType(icon) {
+  if (ICON_CATEGORIES.people.includes(icon)) return 'person';
+  if (ICON_CATEGORIES.tech.includes(icon)) return 'system';
+  return 'work';
+}
+
+function positionNewParticipants() {
+  const unplaced = Object.values(state.participants).filter(p => p.x === null);
+  if (!unplaced.length) return;
+  const cx = state.canvasSize.width / 2, cy = state.canvasSize.height / 2, r = Math.min(cx, cy) * 0.6;
+  unplaced.forEach((p, i) => {
+    const angle = (i / unplaced.length) * 2 * Math.PI - Math.PI / 2;
+    p.x = cx + Math.cos(angle) * r;
+    p.y = cy + Math.sin(angle) * r;
+  });
+}
+
+function renderParticipants() {
+  const canvas = document.getElementById('diagramCanvas');
+  canvas.querySelectorAll('.participant').forEach(el => {
+    if (!state.participants[el.dataset.key]) {
+      const key = el.dataset.key;
+      const oldParticipants = Object.values(state.participants);
+      const participant = oldParticipants.find(p => p.element === el);
+      if (participant?.cleanup) participant.cleanup();
+      el.remove();
+    }
+  });
+
+  // First pass: create elements and set content
+  Object.entries(state.participants).forEach(([key, p]) => {
+    if (!p.element) {
+      const div = document.createElement('div');
+      div.className = 'participant'; div.dataset.key = key;
+      canvas.appendChild(div); p.element = div;
+      makeDraggable(div, p);
+    }
+    p.element.dataset.type = getActorType(p.icon);
+    p.element.innerHTML = `<span class="material-icons">${p.icon}</span><div class="participant-name">${escapeHtml(p.displayName)}</div>${p.annotation ? `<div class="participant-annotation">${escapeHtml(p.annotation)}</div>` : ''}`;
+  });
+
+  // Second pass: measure and position (after browser has laid out elements)
+  Object.entries(state.participants).forEach(([key, p]) => {
+    // Measure dimensions (fixed size - no scaling)
+    const measuredW = p.element.offsetWidth;
+    const measuredH = p.element.offsetHeight;
+
+    // Cache valid measurements
+    if (measuredW > 0) p.cachedWidth = measuredW;
+    if (measuredH > 0) p.cachedHeight = measuredH;
+
+    // Use cached dimensions
+    const w = p.cachedWidth || 90;
+    const h = p.cachedHeight || 70;
+
+    // Position: center element at logical position, transformed to screen coords
+    // NO CSS scaling - elements stay fixed size, only positions change with zoom
+    p.element.style.left = `${p.x * state.zoom + state.pan.x - w/2}px`;
+    p.element.style.top = `${p.y * state.zoom + state.pan.y - h/2}px`;
+  });
+}
+
+function makeDraggable(el, p) {
+  if (p.cleanup) p.cleanup();
+  let startX, startY, startPx, startPy, dragging = false;
+  function onStart(e) {
+    e.preventDefault();
+    dragging = true;
+    el.classList.add('dragging');
+    const t = e.touches ? e.touches[0] : e;
+    startX = t.clientX;
+    startY = t.clientY;
+    startPx = p.x;
+    startPy = p.y;
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const t = e.touches ? e.touches[0] : e;
+    // Convert screen delta to logical delta
+    p.x = startPx + (t.clientX - startX) / state.zoom;
+    p.y = startPy + (t.clientY - startY) / state.zoom;
+    // Position element (fixed size, no CSS scaling)
+    const w = p.cachedWidth || 90;
+    const h = p.cachedHeight || 70;
+    el.style.left = `${p.x * state.zoom + state.pan.x - w/2}px`;
+    el.style.top = `${p.y * state.zoom + state.pan.y - h/2}px`;
+    renderFlows();
+  }
+  function onEnd() {
+    dragging = false;
+    el.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+    renderParticipants();
+    renderFlows();
+  }
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+  p.cleanup = () => {
+    el.removeEventListener('mousedown', onStart);
+    el.removeEventListener('touchstart', onStart);
+    if (dragging) onEnd();
+  };
+}
+
+// Convert logical coordinates to screen coordinates
+function toScreen(x, y) {
+  return {
+    x: x * state.zoom + state.pan.x,
+    y: y * state.zoom + state.pan.y
+  };
+}
+
+function renderFlows() {
+  const svg = document.getElementById('diagramSvg');
+  svg.innerHTML = '';
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  FLOW_COLORS.forEach((c, i) => {
+    const m = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    m.setAttribute('id', `arrow-${i}`); m.setAttribute('markerWidth', '8'); m.setAttribute('markerHeight', '8');
+    m.setAttribute('refX', '7'); m.setAttribute('refY', '3'); m.setAttribute('orient', 'auto');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M0,0 L0,6 L8,3 Z'); path.setAttribute('fill', c);
+    m.appendChild(path); defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+  const actorKeys = Object.keys(state.participants);
+
+  state.flows.forEach((flow, fi) => {
+    const color = FLOW_COLORS[fi % FLOW_COLORS.length];
+    flow.steps.forEach((step, si) => {
+      const fromKey = actorKeys.find(k => state.participants[k].displayName === step.from);
+      const toKey = actorKeys.find(k => state.participants[k].displayName === step.to);
+      const fromP = state.participants[fromKey], toP = state.participants[toKey];
+      if (!fromP || !toP) return;
+
+      if (step.controlX === null) {
+        const mx = (fromP.x + toP.x) / 2, my = (fromP.y + toP.y) / 2;
+        const dx = toP.x - fromP.x, dy = toP.y - fromP.y, len = Math.sqrt(dx*dx + dy*dy) || 1;
+        const offset = (si - (flow.steps.length - 1) / 2) * 50;
+        step.controlX = mx + (-dy / len) * offset;
+        step.controlY = my + (dx / len) * offset;
+      }
+
+      const fromE = getBoxEdge(fromP, step.controlX, step.controlY);
+      const toE = getBoxEdge(toP, step.controlX, step.controlY);
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      // No transform on g - we compute screen coordinates directly to match HTML elements
+
+      // Convert logical coordinates to screen coordinates
+      const fromScreen = toScreen(fromE.x, fromE.y);
+      const toScreen_ = toScreen(toE.x, toE.y);
+      const ctrlScreen = toScreen(step.controlX, step.controlY);
+
+      const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathEl.setAttribute('d', `M ${fromScreen.x},${fromScreen.y} Q ${ctrlScreen.x},${ctrlScreen.y} ${toScreen_.x},${toScreen_.y}`);
+      pathEl.setAttribute('stroke', color); pathEl.classList.add('flow-path');
+      pathEl.setAttribute('stroke-width', 2); // Fixed size
+      pathEl.setAttribute('marker-end', `url(#arrow-${fi % FLOW_COLORS.length})`);
+      g.appendChild(pathEl);
+
+      const badgePos = bezierPoint(0.15, fromE, { x: step.controlX, y: step.controlY }, toE);
+      const badgeScreen = toScreen(badgePos.x, badgePos.y);
+      const badge = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      badge.setAttribute('cx', badgeScreen.x); badge.setAttribute('cy', badgeScreen.y - 12);
+      badge.setAttribute('r', 9); badge.setAttribute('fill', color); g.appendChild(badge);
+      const bt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      bt.setAttribute('x', badgeScreen.x); bt.setAttribute('y', badgeScreen.y - 8);
+      bt.setAttribute('text-anchor', 'middle'); bt.classList.add('step-badge');
+      bt.setAttribute('font-size', 9);
+      bt.textContent = `${flow.number}.${si + 1}`; g.appendChild(bt);
+
+      if (step.action) {
+        const labelPos = bezierPoint(0.5, fromE, { x: step.controlX, y: step.controlY }, toE);
+        const labelScreen = toScreen(labelPos.x, labelPos.y);
+        const tm = measureText(step.action, 10);
+        const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bg.setAttribute('x', labelScreen.x - tm.width/2 - 5);
+        bg.setAttribute('y', labelScreen.y - 20);
+        bg.setAttribute('width', tm.width + 10);
+        bg.setAttribute('height', 16);
+        bg.setAttribute('rx', 3); bg.classList.add('flow-label-bg'); g.appendChild(bg);
+        const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        tx.setAttribute('x', labelScreen.x); tx.setAttribute('y', labelScreen.y - 9);
+        tx.setAttribute('text-anchor', 'middle'); tx.classList.add('flow-label');
+        tx.setAttribute('font-size', 10);
+        tx.textContent = step.action; g.appendChild(tx);
+      }
+
+      if (step.workObject) {
+        const woPos = bezierPoint(0.8, fromE, { x: step.controlX, y: step.controlY }, toE);
+        const woScreen = toScreen(woPos.x, woPos.y);
+        const tm = measureText(step.workObject, 9);
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('x', woScreen.x - tm.width/2 - 6);
+        r.setAttribute('y', woScreen.y + 8);
+        r.setAttribute('width', tm.width + 12);
+        r.setAttribute('height', 14);
+        r.setAttribute('rx', 3); r.classList.add('work-object-box'); g.appendChild(r);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', woScreen.x); t.setAttribute('y', woScreen.y + 18);
+        t.setAttribute('text-anchor', 'middle'); t.classList.add('work-object-text');
+        t.setAttribute('font-size', 9);
+        t.textContent = step.workObject; g.appendChild(t);
+      }
+
+      if (step.annotation) {
+        const annPos = bezierPoint(step.workObject ? 0.65 : 0.75, fromE, { x: step.controlX, y: step.controlY }, toE);
+        const annScreen = toScreen(annPos.x, annPos.y);
+        const tm = measureText(step.annotation, 9);
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('x', annScreen.x - tm.width/2 - 6);
+        r.setAttribute('y', annScreen.y - 20);
+        r.setAttribute('width', tm.width + 12);
+        r.setAttribute('height', 14);
+        r.setAttribute('rx', 3); r.classList.add('annotation-box'); g.appendChild(r);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', annScreen.x); t.setAttribute('y', annScreen.y - 10);
+        t.setAttribute('text-anchor', 'middle'); t.classList.add('annotation-text');
+        t.setAttribute('font-size', 9);
+        t.textContent = step.annotation; g.appendChild(t);
+      }
+
+      const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      handle.setAttribute('cx', ctrlScreen.x); handle.setAttribute('cy', ctrlScreen.y);
+      handle.setAttribute('r', 6); handle.classList.add('control-handle');
+      g.appendChild(handle);
+      makeHandleDraggable(handle, step);
+      svg.appendChild(g);
+    });
+  });
+}
+
+function makeHandleDraggable(h, step) {
+  let dragging = false, startX, startY, startCX, startCY;
+  function onStart(e) { e.preventDefault(); e.stopPropagation(); dragging = true; const t = e.touches ? e.touches[0] : e; startX = t.clientX; startY = t.clientY; startCX = step.controlX; startCY = step.controlY; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd); document.addEventListener('touchmove', onMove, { passive: false }); document.addEventListener('touchend', onEnd); }
+  function onMove(e) { if (!dragging) return; e.preventDefault(); const t = e.touches ? e.touches[0] : e; step.controlX = startCX + (t.clientX - startX) / state.zoom; step.controlY = startCY + (t.clientY - startY) / state.zoom; renderFlows(); }
+  function onEnd() { dragging = false; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd); document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); }
+  h.style.pointerEvents = 'all'; h.addEventListener('mousedown', onStart); h.addEventListener('touchstart', onStart, { passive: false });
+}
+
+function getBoxEdge(p, toX, toY) {
+  if (!p || typeof p.x !== 'number' || typeof p.y !== 'number') {
+    return { x: toX || 0, y: toY || 0 };
+  }
+  // Get fixed pixel dimensions
+  const elW = p.cachedWidth || p.element?.offsetWidth || 90;
+  const elH = p.cachedHeight || p.element?.offsetHeight || 70;
+  // Convert pixel size to logical size (since participants are fixed pixel size)
+  // Add small padding (6px) for arrow clearance
+  const w = (elW / 2 + 6) / state.zoom;
+  const h = (elH / 2 + 6) / state.zoom;
+  const dx = toX - p.x, dy = toY - p.y;
+  if (dx === 0 && dy === 0) return { x: p.x, y: p.y };
+  const scale = Math.min(w / Math.abs(dx || 0.001), h / Math.abs(dy || 0.001));
+  return { x: p.x + dx * scale, y: p.y + dy * scale };
+}
+
+function bezierPoint(t, p0, p1, p2) {
+  const mt = 1 - t;
+  return { x: mt*mt*p0.x + 2*mt*t*p1.x + t*t*p2.x, y: mt*mt*p0.y + 2*mt*t*p1.y + t*t*p2.y };
+}
+
+function measureText(text, size) {
+  const el = document.getElementById('measureText');
+  el.setAttribute('font-size', size);
+  el.textContent = text;
+  return el.getBBox();
+}
+
+function applyLayout(type) {
+  const actors = Object.values(state.participants);
+  if (!actors.length) return;
+  const cx = state.canvasSize.width / 2, cy = state.canvasSize.height / 2, padding = 150;
+  state.flows.forEach(f => f.steps.forEach(s => { s.controlX = null; s.controlY = null; }));
+
+  if (type === 'circular') {
+    const radius = Math.min(cx, cy) - padding;
+    actors.forEach((p, i) => { const angle = (i / actors.length) * 2 * Math.PI - Math.PI / 2; p.x = cx + Math.cos(angle) * radius; p.y = cy + Math.sin(angle) * radius; });
+  } else if (type === 'grid') {
+    const cols = Math.ceil(Math.sqrt(actors.length));
+    const cellW = (state.canvasSize.width - padding * 2) / cols;
+    const cellH = (state.canvasSize.height - padding * 2) / Math.ceil(actors.length / cols);
+    actors.forEach((p, i) => { p.x = padding + (i % cols) * cellW + cellW / 2; p.y = padding + Math.floor(i / cols) * cellH + cellH / 2; });
+  } else if (type === 'flow') {
+    const levels = new Map(), visited = new Set(), actorKeys = Object.keys(state.participants);
+    const targets = new Set();
+    state.flows.forEach(f => f.steps.forEach(s => { const tk = actorKeys.find(k => state.participants[k].displayName === s.to); if (tk) targets.add(tk); }));
+    const roots = actorKeys.filter(k => !targets.has(k));
+    if (!roots.length && actorKeys.length) roots.push(actorKeys[0]);
+    let queue = roots.map(k => ({ key: k, level: 0 }));
+    roots.forEach(k => { levels.set(k, 0); visited.add(k); });
+    while (queue.length) {
+      const { key, level } = queue.shift();
+      const actor = state.participants[key];
+      state.flows.forEach(f => f.steps.forEach(s => {
+        if (s.from === actor.displayName) {
+          const tk = actorKeys.find(k => state.participants[k].displayName === s.to);
+          if (tk && !visited.has(tk)) { levels.set(tk, level + 1); visited.add(tk); queue.push({ key: tk, level: level + 1 }); }
+        }
+      }));
+    }
+    actorKeys.forEach(k => { if (!levels.has(k)) levels.set(k, levels.size); });
+    const byLevel = {};
+    levels.forEach((lvl, key) => { if (!byLevel[lvl]) byLevel[lvl] = []; byLevel[lvl].push(key); });
+    const numLevels = Object.keys(byLevel).length;
+    const levelWidth = (state.canvasSize.width - padding * 2) / Math.max(numLevels, 1);
+    Object.entries(byLevel).forEach(([lvl, keys]) => {
+      const levelHeight = (state.canvasSize.height - padding * 2) / keys.length;
+      keys.forEach((key, i) => { const p = state.participants[key]; p.x = padding + parseInt(lvl) * levelWidth + levelWidth / 2; p.y = padding + i * levelHeight + levelHeight / 2; });
+    });
+  } else if (type === 'force') {
+    const iterations = 80, repulsion = 18000, attraction = 0.04, damping = 0.85;
+    const actorKeys = Object.keys(state.participants);
+    const edges = [];
+    state.flows.forEach(f => f.steps.forEach(s => {
+      const fk = actorKeys.find(k => state.participants[k].displayName === s.from);
+      const tk = actorKeys.find(k => state.participants[k].displayName === s.to);
+      if (fk && tk) edges.push({ from: fk, to: tk });
+    }));
+    const vel = {};
+    actorKeys.forEach(k => { vel[k] = { x: 0, y: 0 }; });
+    for (let iter = 0; iter < iterations; iter++) {
+      for (let i = 0; i < actorKeys.length; i++) {
+        for (let j = i + 1; j < actorKeys.length; j++) {
+          const a = state.participants[actorKeys[i]], b = state.participants[actorKeys[j]];
+          const dx = b.x - a.x, dy = b.y - a.y, dist = Math.sqrt(dx*dx + dy*dy) || 1;
+          const force = repulsion / (dist * dist), fx = (dx / dist) * force, fy = (dy / dist) * force;
+          vel[actorKeys[i]].x -= fx; vel[actorKeys[i]].y -= fy;
+          vel[actorKeys[j]].x += fx; vel[actorKeys[j]].y += fy;
+        }
+      }
+      edges.forEach(e => {
+        const a = state.participants[e.from], b = state.participants[e.to];
+        const dx = b.x - a.x, dy = b.y - a.y, dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        const force = dist * attraction, fx = (dx / dist) * force, fy = (dy / dist) * force;
+        vel[e.from].x += fx; vel[e.from].y += fy;
+        vel[e.to].x -= fx; vel[e.to].y -= fy;
+      });
+      actorKeys.forEach(k => {
+        const p = state.participants[k];
+        p.x += vel[k].x; p.y += vel[k].y;
+        vel[k].x *= damping; vel[k].y *= damping;
+        p.x = Math.max(padding, Math.min(state.canvasSize.width - padding, p.x));
+        p.y = Math.max(padding, Math.min(state.canvasSize.height - padding, p.y));
+      });
+    }
+  }
+  renderParticipants(); renderFlows(); fitToScreen(); showToast(`Applied ${type} layout`);
+}
+
+function setZoom(z) {
+  state.zoom = Math.max(0.2, Math.min(2, z));
+  document.getElementById('zoomIndicator').textContent = `${Math.round(state.zoom * 100)}%`;
+  renderParticipants();
+  renderFlows();
+}
+
+function fitToScreen() {
+  const ps = Object.values(state.participants);
+  if (!ps.length) return;
+  const rect = document.getElementById('diagramContainer').getBoundingClientRect();
+
+  // Find bounding box of all participants in logical space
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  ps.forEach(p => {
+    minX = Math.min(minX, p.x);
+    maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y);
+    maxY = Math.max(maxY, p.y);
+  });
+
+  // Add padding in logical space
+  const logicalPadding = 100;
+  minX -= logicalPadding;
+  maxX += logicalPadding;
+  minY -= logicalPadding;
+  maxY += logicalPadding;
+
+  const w = maxX - minX, h = maxY - minY;
+  const screenPad = 40; // Padding in screen pixels
+
+  // Calculate zoom to fit content
+  state.zoom = Math.min(
+    (rect.width - screenPad * 2) / w,
+    (rect.height - screenPad * 2) / h,
+    1.5
+  );
+
+  // Center the content
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  state.pan.x = rect.width / 2 - centerX * state.zoom;
+  state.pan.y = rect.height / 2 - centerY * state.zoom;
+
+  document.getElementById('zoomIndicator').textContent = `${Math.round(state.zoom * 100)}%`;
+  renderParticipants(); renderFlows();
+}
+
+function setupPinchZoom() {
+  let lastDist = 0;
+  const container = document.getElementById('diagramContainer');
+  container.addEventListener('touchstart', e => { if (e.touches.length === 2) { const dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY; lastDist = Math.sqrt(dx*dx + dy*dy); } }, { passive: true });
+  container.addEventListener('touchmove', e => { if (e.touches.length === 2) { const dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY, dist = Math.sqrt(dx*dx + dy*dy); if (lastDist > 0) setZoom(state.zoom + (dist - lastDist) * 0.004); lastDist = dist; } }, { passive: true });
+  container.addEventListener('touchend', () => { lastDist = 0; });
+}
+
+async function exportPNG() {
+  showToast('Exporting...');
+  const exportContainer = document.getElementById('exportContainer');
+  const diagramClone = document.getElementById('diagramContainer').cloneNode(true);
+  diagramClone.style.cssText = 'position:relative;width:1600px;height:1000px;';
+  diagramClone.querySelectorAll('.control-handle, .diagram-controls, .zoom-indicator, .empty-state, .diagram-toolbar, .story-selector').forEach(el => el.remove());
+  const stepsSection = document.createElement('div');
+  stepsSection.style.cssText = 'border-top:2px solid #e2e8f0;padding:20px;width:1600px;background:white;';
+  stepsSection.innerHTML = document.getElementById('stepsContainer').innerHTML;
+  exportContainer.innerHTML = '';
+  exportContainer.style.cssText = 'position:absolute;left:0;top:0;width:1640px;background:white;padding:20px;';
+  exportContainer.appendChild(diagramClone);
+  exportContainer.appendChild(stepsSection);
+  await new Promise(r => setTimeout(r, 100));
+  try {
+    const canvas = await html2canvas(exportContainer, { backgroundColor: '#ffffff', scale: 2 });
+    const link = document.createElement('a'); link.download = 'domain-story.png'; link.href = canvas.toDataURL('image/png'); link.click();
+    showToast('Exported!');
+  } catch (e) { showToast('Export failed'); }
+  exportContainer.style.left = '-9999px';
+}
