@@ -216,3 +216,76 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 .measure-svg { position: absolute; visibility: hidden; pointer-events: none; }
 .export-container { position: absolute; left: -9999px; top: 0; background: white; padding: 20px; }
+
+@media print {
+  @page {
+    margin: 5mm;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  .app,
+  .main-content,
+  .diagram-container,
+  .desktop-steps-section,
+  .steps-panel {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  /* Hide chrome and non-essential UI */
+  .header,
+  .tabs,
+  .editor-panel,
+  .diagram-toolbar,
+  .diagram-controls,
+  .zoom-indicator,
+  .story-selector,
+  .quick-bar,
+  .validation-bar,
+  .modal-overlay,
+  .icon-picker-overlay,
+  .toast,
+  .empty-state {
+    display: none !important;
+  }
+
+  /* Focus on diagram + steps for print */
+  .panel {
+    display: none !important;
+  }
+
+  .panel.diagram-panel {
+    display: block !important;
+    flex: none;
+  }
+
+  /* Ensure steps text is printed (desktop + mobile layouts) */
+  .desktop-steps-section {
+    display: block !important;
+    border-top: none;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .panel.steps-panel {
+    display: block !important;
+  }
+
+  .diagram-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .diagram-canvas,
+  .diagram-svg {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+}
+
