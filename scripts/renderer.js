@@ -67,14 +67,18 @@ function renderStorySelector() {
 function updateVisibleDomain() {
   const visible = state.currentDomain === -1 ? state.domains : (state.domains[state.currentDomain] ? [state.domains[state.currentDomain]] : []);
   const newParticipants = {};
-  visible.forEach((domain, di) => {
+  const showingAll = state.currentDomain === -1;
+
+  visible.forEach(domain => {
     const domainIndex = state.domains.indexOf(domain);
     domain.participants.forEach(p => {
-      const key = state.domains.length > 1 ? `${p.name}__${domainIndex}` : p.name;
+      // In "All" view we want a single node per actor name (no per-domain duplication)
+      const key = showingAll ? p.name : p.name;
       if (!newParticipants[key]) {
         newParticipants[key] = {
           ...p,
-          domainIndex,
+          // For "All" view, omit a specific domainIndex so actors can be reused
+          domainIndex: showingAll ? undefined : domainIndex,
           displayName: p.name,
           x: null,
           y: null

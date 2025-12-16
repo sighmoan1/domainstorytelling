@@ -6,6 +6,8 @@ function escapeRegex(string) {
 function parseDomainStory(input) {
   const lines = input.split('\n');
   const domains = [], errors = [];
+  // Global participant directory (keyed case-insensitively by name)
+  const participantMap = new Map();
   let currentDomain = null, currentFlow = null, flowNum = 0;
 
   lines.forEach((rawLine, lineIdx) => {
@@ -41,8 +43,15 @@ function parseDomainStory(input) {
 
     if (line.startsWith('@')) {
       const m = line.match(/^@(.+?)\s*\((\w+)\)\s*(?:"(.+)")?$/);
-      if (m) currentDomain.participants.push({ name: m[1].trim(), icon: m[2].trim(), annotation: m[3] || null });
-      else errors.push({ line: lineNum, msg: 'Invalid actor', hint: '@Name (icon)' });
+      if (m) {
+        const name = m[1].trim();
+        const icon = m[2].trim();
+        const annotation = m[3] || null;
+        // Store/update in global directory keyed by lower-cased name
+        participantMap.set(name.toLowerCase(), { name, icon, annotation });
+      } else {
+        errors.push({ line: lineNum, msg: 'Invalid actor', hint: '@Name (icon)' });
+      }
       return;
     }
 
@@ -58,7 +67,8 @@ function parseDomainStory(input) {
 
     // Detect if this is a step line: it should reference at least one actor.
     // Commas are treated as regular characters now (no longer required for parsing).
-    const mightBeStep = currentDomain.participants.some(p =>
+    const allParticipants = Array.from(participantMap.values());
+    const mightBeStep = allParticipants.some(p =>
       line.toLowerCase().includes(p.name.toLowerCase())
     );
 
@@ -72,7 +82,7 @@ function parseDomainStory(input) {
         return;
       }
 
-      const actorNames = currentDomain.participants.map(p => p.name);
+      const actorNames = allParticipants.map(p => p.name);
 
       // Always use the whitespace-based parser so commas are fully optional.
       // (Old comma-based syntax is still supported because commas can appear inside the action.)
@@ -82,6 +92,25 @@ function parseDomainStory(input) {
         currentFlow.steps.push({ ...parsed, controlX: null, controlY: null });
       }
     }
+  });
+
+  // After all steps are parsed, determine which actors are actually used per domain
+  const participantLookup = (name) => {
+    if (!name) return null;
+    return participantMap.get(String(name).toLowerCase()) || null;
+  };
+
+  domains.forEach(domain => {
+    const used = new Map();
+    domain.flows.forEach(flow => {
+      flow.steps.forEach(step => {
+        const fromP = participantLookup(step.from);
+        const toP = participantLookup(step.to);
+        if (fromP) used.set(fromP.name, fromP);
+        if (toP) used.set(toP.name, toP);
+      });
+    });
+    domain.participants = Array.from(used.values());
   });
 
   return { domains, errors };

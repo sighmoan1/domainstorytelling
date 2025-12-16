@@ -159,11 +159,19 @@ function renderFlows() {
     flow.steps.forEach((step, si) => {
       const fromKey = actorKeys.find(k => {
         const p = state.participants[k];
+        // In "All" view we ignore domainIndex so shared actors are reused
+        if (state.currentDomain === -1) {
+          return p.displayName === step.from;
+        }
+        // In per-domain view, keep the domainIndex filter
         return p.displayName === step.from &&
           (typeof flow.domainIndex !== 'number' || p.domainIndex === flow.domainIndex);
       });
       const toKey = actorKeys.find(k => {
         const p = state.participants[k];
+        if (state.currentDomain === -1) {
+          return p.displayName === step.to;
+        }
         return p.displayName === step.to &&
           (typeof flow.domainIndex !== 'number' || p.domainIndex === flow.domainIndex);
       });
