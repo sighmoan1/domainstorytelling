@@ -68,9 +68,18 @@ function updateVisibleDomain() {
   const visible = state.currentDomain === -1 ? state.domains : (state.domains[state.currentDomain] ? [state.domains[state.currentDomain]] : []);
   const newParticipants = {};
   visible.forEach((domain, di) => {
+    const domainIndex = state.domains.indexOf(domain);
     domain.participants.forEach(p => {
-      const key = state.domains.length > 1 ? `${p.name}__${state.domains.indexOf(domain)}` : p.name;
-      if (!newParticipants[key]) newParticipants[key] = { ...p, domainIndex: state.domains.indexOf(domain), displayName: p.name, x: null, y: null };
+      const key = state.domains.length > 1 ? `${p.name}__${domainIndex}` : p.name;
+      if (!newParticipants[key]) {
+        newParticipants[key] = {
+          ...p,
+          domainIndex,
+          displayName: p.name,
+          x: null,
+          y: null
+        };
+      }
     });
   });
   Object.entries(state.participants).forEach(([key, p]) => {
@@ -79,7 +88,15 @@ function updateVisibleDomain() {
   });
   state.participants = newParticipants;
   state.flows = [];
-  visible.forEach(domain => domain.flows.forEach(f => state.flows.push({ ...f, domainTitle: domain.title, domainColor: domain.color })));
+  visible.forEach(domain => {
+    const domainIndex = state.domains.indexOf(domain);
+    domain.flows.forEach(f => state.flows.push({
+      ...f,
+      domainTitle: domain.title,
+      domainColor: domain.color,
+      domainIndex
+    }));
+  });
   positionNewParticipants();
   renderParticipants();
   renderFlows();

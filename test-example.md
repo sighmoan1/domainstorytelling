@@ -63,7 +63,7 @@ App processes request for User
 User, receives response from, App
 ```
 
-## Test 6: Complex Multi-Domain Story
+## Test 6: Complex Multi-Domain Story (As-is / To-be)
 ```
 # Current State (As-Is)
 > [assumption] Manual process is error-prone
@@ -105,6 +105,37 @@ Order System validates with Customer "pending approval"
 Customer confirms to Order System {Approval}
 Order System forwards to Warehouse {Order Details}
 Warehouse ships to Customer {Product} "shipped"
+```
+
+## Test 8: Managing partnerships As-is / To-be pattern
+```
+# Managing partnerships – As-is
+
+@A (person)
+@B (system)
+@C (cloud)
+@D (person)
+@E (system)
+@F (system)
+
+## As-is flow 1
+A uses B
+B creates C
+
+## As-is flow 2
+D uses E
+
+# Managing partnerships – To-be
+
+@A (person)
+@B (system)
+@C (cloud)
+@D (person)
+@E (system)
+@F (system)
+
+## To-be flow 1
+D uses F
 ```
 
 ## Expected Results

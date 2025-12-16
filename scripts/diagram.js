@@ -63,16 +63,32 @@ function renderParticipants() {
 
 function makeDraggable(el, p) {
   if (p.cleanup) p.cleanup();
+  // Always resolve the participant from state by key so dragging
+  // keeps working even when state.participants is rebuilt (e.g. when
+  // switching domain/story tabs in the layout view).
+  const key = el.dataset.key;
   let startX, startY, startPx, startPy, dragging = false;
+  // Offset between the cursor and the participant's logical center,
+  // so the element stays under the grab point while dragging.
+  let cursorOffsetX = 0, cursorOffsetY = 0;
   function onStart(e) {
+    const participant = state.participants[key];
+    if (!participant) return;
     e.preventDefault();
     dragging = true;
     el.classList.add('dragging');
     const t = e.touches ? e.touches[0] : e;
     startX = t.clientX;
     startY = t.clientY;
-    startPx = p.x;
-    startPy = p.y;
+    // Use the current logical position as the start point so there is no visual jump
+    // when beginning a drag.
+    startPx = participant.x;
+    startPy = participant.y;
+    // Remember where inside the element the cursor grabbed it (in logical coords)
+    const cursorLogicalX = (t.clientX - state.pan.x) / state.zoom;
+    const cursorLogicalY = (t.clientY - state.pan.y) / state.zoom;
+    cursorOffsetX = participant.x - cursorLogicalX;
+    cursorOffsetY = participant.y - cursorLogicalY;
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onEnd);
     document.addEventListener('touchmove', onMove, { passive: false });
@@ -80,16 +96,20 @@ function makeDraggable(el, p) {
   }
   function onMove(e) {
     if (!dragging) return;
+    const participant = state.participants[key];
+    if (!participant) return;
     e.preventDefault();
     const t = e.touches ? e.touches[0] : e;
-    // Convert screen delta to logical delta
-    p.x = startPx + (t.clientX - startX) / state.zoom;
-    p.y = startPy + (t.clientY - startY) / state.zoom;
+    // Convert cursor position to logical coords and keep the original grab offset
+    const cursorLogicalX = (t.clientX - state.pan.x) / state.zoom;
+    const cursorLogicalY = (t.clientY - state.pan.y) / state.zoom;
+    participant.x = cursorLogicalX + cursorOffsetX;
+    participant.y = cursorLogicalY + cursorOffsetY;
     // Position element (fixed size, no CSS scaling)
-    const w = p.cachedWidth || 90;
-    const h = p.cachedHeight || 70;
-    el.style.left = `${p.x * state.zoom + state.pan.x - w/2}px`;
-    el.style.top = `${p.y * state.zoom + state.pan.y - h/2}px`;
+    const w = participant.cachedWidth || 90;
+    const h = participant.cachedHeight || 70;
+    el.style.left = `${participant.x * state.zoom + state.pan.x - w/2}px`;
+    el.style.top = `${participant.y * state.zoom + state.pan.y - h/2}px`;
     renderFlows();
   }
   function onEnd() {
@@ -137,8 +157,16 @@ function renderFlows() {
   state.flows.forEach((flow, fi) => {
     const color = FLOW_COLORS[fi % FLOW_COLORS.length];
     flow.steps.forEach((step, si) => {
-      const fromKey = actorKeys.find(k => state.participants[k].displayName === step.from);
-      const toKey = actorKeys.find(k => state.participants[k].displayName === step.to);
+      const fromKey = actorKeys.find(k => {
+        const p = state.participants[k];
+        return p.displayName === step.from &&
+          (typeof flow.domainIndex !== 'number' || p.domainIndex === flow.domainIndex);
+      });
+      const toKey = actorKeys.find(k => {
+        const p = state.participants[k];
+        return p.displayName === step.to &&
+          (typeof flow.domainIndex !== 'number' || p.domainIndex === flow.domainIndex);
+      });
       const fromP = state.participants[fromKey], toP = state.participants[toKey];
       if (!fromP || !toP) return;
 
@@ -293,7 +321,14 @@ function applyLayout(type) {
   } else if (type === 'flow') {
     const levels = new Map(), visited = new Set(), actorKeys = Object.keys(state.participants);
     const targets = new Set();
-    state.flows.forEach(f => f.steps.forEach(s => { const tk = actorKeys.find(k => state.participants[k].displayName === s.to); if (tk) targets.add(tk); }));
+    state.flows.forEach(f => f.steps.forEach(s => {
+      const tk = actorKeys.find(k => {
+        const p = state.participants[k];
+        return p.displayName === s.to &&
+          (typeof f.domainIndex !== 'number' || p.domainIndex === f.domainIndex);
+      });
+      if (tk) targets.add(tk);
+    }));
     const roots = actorKeys.filter(k => !targets.has(k));
     if (!roots.length && actorKeys.length) roots.push(actorKeys[0]);
     let queue = roots.map(k => ({ key: k, level: 0 }));
@@ -301,12 +336,23 @@ function applyLayout(type) {
     while (queue.length) {
       const { key, level } = queue.shift();
       const actor = state.participants[key];
-      state.flows.forEach(f => f.steps.forEach(s => {
-        if (s.from === actor.displayName) {
-          const tk = actorKeys.find(k => state.participants[k].displayName === s.to);
-          if (tk && !visited.has(tk)) { levels.set(tk, level + 1); visited.add(tk); queue.push({ key: tk, level: level + 1 }); }
-        }
-      }));
+      state.flows.forEach(f => {
+        f.steps.forEach(s => {
+          const fromMatches = s.from === actor.displayName &&
+            (typeof f.domainIndex !== 'number' || actor.domainIndex === f.domainIndex);
+          if (!fromMatches) return;
+          const tk = actorKeys.find(k => {
+            const p = state.participants[k];
+            return p.displayName === s.to &&
+              (typeof f.domainIndex !== 'number' || p.domainIndex === f.domainIndex);
+          });
+          if (tk && !visited.has(tk)) {
+            levels.set(tk, level + 1);
+            visited.add(tk);
+            queue.push({ key: tk, level: level + 1 });
+          }
+        });
+      });
     }
     actorKeys.forEach(k => { if (!levels.has(k)) levels.set(k, levels.size); });
     const byLevel = {};
@@ -322,8 +368,16 @@ function applyLayout(type) {
     const actorKeys = Object.keys(state.participants);
     const edges = [];
     state.flows.forEach(f => f.steps.forEach(s => {
-      const fk = actorKeys.find(k => state.participants[k].displayName === s.from);
-      const tk = actorKeys.find(k => state.participants[k].displayName === s.to);
+      const fk = actorKeys.find(k => {
+        const p = state.participants[k];
+        return p.displayName === s.from &&
+          (typeof f.domainIndex !== 'number' || p.domainIndex === f.domainIndex);
+      });
+      const tk = actorKeys.find(k => {
+        const p = state.participants[k];
+        return p.displayName === s.to &&
+          (typeof f.domainIndex !== 'number' || p.domainIndex === f.domainIndex);
+      });
       if (fk && tk) edges.push({ from: fk, to: tk });
     }));
     const vel = {};
