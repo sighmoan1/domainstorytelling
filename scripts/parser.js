@@ -9,9 +9,54 @@ function parseDomainStory(input) {
   // Global participant directory (keyed case-insensitively by name)
   const participantMap = new Map();
   let currentDomain = null, currentFlow = null, flowNum = 0;
+  let inCodeBlock = false;
+  let codeBuffer = [];
 
   lines.forEach((rawLine, lineIdx) => {
-    const line = rawLine.trim();
+    const trimmed = rawLine.trim();
+
+    // Handle fenced code blocks (``` ... ```).
+    // Anything inside should be treated as plain text, not parsed as DSL syntax.
+    if (trimmed.startsWith('```')) {
+      // Toggle code block state
+      if (!inCodeBlock) {
+        // Starting a new code block
+        inCodeBlock = true;
+        codeBuffer = [];
+      } else {
+        // Closing an existing code block
+        inCodeBlock = false;
+        const text = codeBuffer.join('\n').trim();
+        if (text) {
+          if (currentFlow) {
+            // Attach as a special free-text step in the current flow
+            currentFlow.steps.push({
+              from: null,
+              action: text,
+              to: null,
+              workObject: null,
+              annotation: null,
+              isNote: true,
+              controlX: null,
+              controlY: null
+            });
+          } else if (currentDomain) {
+            // Or as a domain-level note if we're not in a flow yet
+            currentDomain.notes.push({ type: 'note', content: text });
+          }
+        }
+        codeBuffer = [];
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      // Collect raw lines inside fenced block only as text
+      codeBuffer.push(rawLine);
+      return;
+    }
+
+    const line = trimmed;
     if (!line) return;
     const lineNum = lineIdx + 1;
 

@@ -15,26 +15,41 @@ function renderSteps() {
       const flowNumber = flow.number || 0;
       html += `<div class="flow-title"><span class="flow-number">${flowNumber}.</span> ${flow.title}</div>`;
 
-      flow.steps.forEach((step, stepIdx) => {
-        const stepNumber = `${flowNumber}.${stepIdx + 1}`;
-        // Build simple sentence: "From action To"
-        let sentence = `${step.from}`;
-        if (step.action) {
-          sentence += ` ${step.action}`;
-        }
-        sentence += ` ${step.to}`;
+      let visibleStepIndex = 0;
 
-        // Add work object if present
-        if (step.workObject) {
-          sentence += `. <span class="work-object">${escapeHtml(step.workObject)}</span>`;
+      flow.steps.forEach((step) => {
+        let sentence = '';
+        let stepNumber = '';
+
+        if (step.isNote && step.action) {
+          // Free-text note step coming from fenced code blocks (no numbering)
+          sentence = `<span class="note">${escapeHtml(step.action)}</span>`;
+        } else {
+          // Increment visible index only for real interaction steps
+          visibleStepIndex++;
+          stepNumber = `${flowNumber}.${visibleStepIndex}`;
+
+          // Build simple sentence: "From action To"
+          sentence = `${step.from}`;
+          if (step.action) {
+            sentence += ` ${step.action}`;
+          }
+          sentence += ` ${step.to}`;
+
+          // Add work object if present
+          if (step.workObject) {
+            sentence += `. <span class="work-object">${escapeHtml(step.workObject)}</span>`;
+          }
+
+          // Add annotation/note if present
+          if (step.annotation) {
+            sentence += `. <span class="note">${escapeHtml(step.annotation)}</span>`;
+          }
         }
 
-        // Add annotation/note if present
-        if (step.annotation) {
-          sentence += `. <span class="note">${escapeHtml(step.annotation)}</span>`;
-        }
-
-        html += `<p><span class="step-number">${stepNumber}</span> ${sentence}.</p>`;
+        // Notes render without a number; real steps keep numbering
+        const numberHtml = stepNumber ? `<span class="step-number">${stepNumber}</span> ` : '';
+        html += `<p>${numberHtml}${sentence}.</p>`;
       });
     });
 
