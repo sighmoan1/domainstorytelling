@@ -34,15 +34,15 @@
             <button class="btn btn-ghost btn-sm" id="clearBtn" title="Clear"><span class="material-icons">delete_outline</span></button>
           </div>
           <div class="editor-wrapper">
-            <textarea class="editor" id="storyInput" placeholder="# My Domain Story
-> [user-story] As a user I want...
-> [requirement] System must...
+            <textarea class="editor" id="storyInput" placeholder="# A customer completes a purchase
+> [assumption] The item is in stock.
 
 @Customer (person)
-@System (computer)
+@Shop (computer)
 
-## Main Flow
-Customer interacts with System"></textarea>
+## Buy an item
+Customer orders from Shop {Item}
+Shop confirms to Customer {Order}"></textarea>
             <div class="autocomplete" id="autocomplete"></div>
           </div>
           <div class="validation-bar" id="validationBar"><span class="material-icons">check_circle</span><span id="validationText">Ready</span></div>
@@ -95,20 +95,18 @@ Customer interacts with System"></textarea>
     <div class="modal">
       <div class="modal-header"><h2>How to Use</h2><button class="btn btn-icon btn-ghost" id="closeHelpBtn"><span class="material-icons">close</span></button></div>
       <div class="modal-body">
-        <div class="syntax-section"><h3><span class="material-icons">folder</span> Domain Story Groups</h3><p>Use # to create groups (As-Is, To-Be, releases)</p><div class="syntax-block"># Incident Record As-Is
-# Incident Record To-Be</div></div>
-        <div class="syntax-section"><h3><span class="material-icons">sticky_note_2</span> Notes & Requirements</h3><p>Use > with tags for notes</p><div class="syntax-block">> [user-story] As a user I want...
-> [requirement] System must...
-> [assumption] We assume...
-> [risk] There is a risk...</div></div>
-        <div class="syntax-section"><h3><span class="material-icons">person</span> Define Actors</h3><div class="syntax-block">@Customer (person)
-@System (computer) "annotation"</div></div>
-        <div class="syntax-section"><h3><span class="material-icons">sync_alt</span> Flows & Steps</h3><p>Use natural whitespace syntax (or legacy comma syntax)</p><div class="syntax-block">## Checkout Process
-Customer adds item to Cart {Product}
-Cart confirms to Customer "success"
+        <div class="syntax-section"><h3><span class="material-icons">folder</span> One scenario per story</h3><p>Use # for one concrete case; another # for a materially different case. Use ## to name the sequence inside it. Select a story tab to see its diagram.</p><div class="syntax-block"># Publish an application
+## Release a change
 
-# Legacy comma syntax also supported:
-Customer, adds item to, Cart {Product}</div></div>
+# Use an application
+## Read a record</div></div>
+        <div class="syntax-section"><h3><span class="material-icons">sticky_note_2</span> Assumptions</h3><p>Use &gt; for scope, assumptions and variations. A quoted annotation at the end of a step marks a local condition.</p><div class="syntax-block">&gt; [assumption] A record exists.
+&gt; [note] This is the usual case.</div></div>
+        <div class="syntax-section"><h3><span class="material-icons">person</span> Actors and work objects</h3><p>Actors are people or active systems, declared once per story. Activities are verbs. Braces name the thing handled or exchanged.</p><div class="syntax-block">@User (person)
+@App (computer)
+User requests from App {Record}
+App returns to User {Record} "if authorised"</div></div>
+        <div class="syntax-section"><h3><span class="material-icons">sync_alt</span> Scope</h3><p>These examples are digitalised domain stories that show a typical build or use scenario. They help discuss an architecture but do not replace a deployment diagram or security assessment. Check each actor, source, copy, access rule and trust boundary separately.</p><p><a href="https://domainstorytelling.org/quick-start-guide" target="_blank" rel="noopener noreferrer">Domain Storytelling quick-start guide</a></p></div>
       </div>
     </div>
   </div>
@@ -137,6 +135,7 @@ Customer, adds item to, Cart {Product}</div></div>
 
   <!-- Load scripts in dependency order -->
   <script src="scripts/state.js"></script>
+  <script src="scripts/examples.js"></script>
   <script src="scripts/parser.js"></script>
   <script src="scripts/diagram.js"></script>
   <script src="scripts/renderer.js"></script>

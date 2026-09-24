@@ -88,9 +88,12 @@ function openTemplates() {
   document.querySelectorAll('.template-card').forEach(card => card.onclick = () => {
     const tmpl = TEMPLATES.find(t => t.id === card.dataset.id);
     document.getElementById('storyInput').value = tmpl.content;
+    state.currentDomain = 0;
     saveHistory(); update();
     document.getElementById('templatesModal').classList.remove('active');
-    showToast('Template loaded!');
+    switchTab('diagram');
+    applyLayout('flow');
+    showToast('Example loaded — select a story tab to see the next scenario');
   });
 }
 

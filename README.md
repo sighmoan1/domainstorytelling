@@ -2,6 +2,26 @@ Go here to use it: https://sighmoan1.github.io/domainstorytelling/
 
 Go here to find out more about it: https://domainstorytelling.org/
 
+Architecture examples
+---------------------
+
+Open **Templates** to load illustrative stories for Claude Artifacts, Docker with
+self-hosted Supabase, Firebase, managed hosting with server-mediated or direct
+Supabase access, and Drive queried through Gemini or imported into Postgres.
+Each `#` heading is a separate concrete scenario. Select a story tab above
+the diagram; use **Steps & Notes** to read its assumptions and numbered actions.
+The examples describe possible configurations, not the actual configuration
+or policy approval of a particular service or organisation.
+
+The notation is `@Actor (material_icon)`, `## Scenario`, and
+`Actor verb phrase Other Actor {Work object} "optional annotation"`.
+People and active software systems are actors; exchanged data and artifacts
+are work objects. The source/build stories and runtime/use stories are kept
+separate because they occur at different times. This is a conversation aid,
+not a substitute for a deployment diagram or a security assessment.
+
+Run `node --test tests/*.test.js` to validate the supplied examples and parser.
+
 Running locally on your machine
 -------------------------------
 

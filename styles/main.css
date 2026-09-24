@@ -123,6 +123,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   margin-bottom: 8px;
 }
 
+.story-text .story-note {
+  padding: 7px 10px;
+  border-left: 3px solid var(--primary);
+  background: var(--primary-light);
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
 .story-text .flow-title {
   font-weight: 600;
   font-size: 15px;
@@ -288,4 +296,3 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     height: auto;
   }
 }
-

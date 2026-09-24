@@ -4,8 +4,11 @@ function renderSteps() {
   let html = '';
 
   visible.forEach(domain => {
-    html += `<div class="domain-header" style="background:${domain.color}"><h2><span class="material-icons">folder</span>${domain.title}</h2></div>`;
+    html += `<div class="domain-header" style="background:${domain.color}"><h2><span class="material-icons">folder</span>${escapeHtml(domain.title)}</h2></div>`;
     html += '<div class="story-text">';
+    domain.notes.forEach(note => {
+      html += `<p class="story-note"><strong>${escapeHtml(NOTE_TYPES[note.type]?.label || 'Note')}:</strong> ${escapeHtml(note.content)}</p>`;
+    });
 
     const domainFlows = state.flows
       .filter(f => f.domainTitle === domain.title)
@@ -13,7 +16,7 @@ function renderSteps() {
 
     domainFlows.forEach(flow => {
       const flowNumber = flow.number || 0;
-      html += `<div class="flow-title"><span class="flow-number">${flowNumber}.</span> ${flow.title}</div>`;
+      html += `<div class="flow-title"><span class="flow-number">${flowNumber}.</span> ${escapeHtml(flow.title)}</div>`;
 
       let visibleStepIndex = 0;
 
@@ -30,26 +33,26 @@ function renderSteps() {
           stepNumber = `${flowNumber}.${visibleStepIndex}`;
 
           // Build simple sentence: "From action To"
-          sentence = `${step.from}`;
+          sentence = `${escapeHtml(step.from)}`;
           if (step.action) {
-            sentence += ` ${step.action}`;
+            sentence += ` ${escapeHtml(step.action)}`;
           }
-          sentence += ` ${step.to}`;
+          sentence += ` ${escapeHtml(step.to)}`;
 
           // Add work object if present
           if (step.workObject) {
-            sentence += `. <span class="work-object">${escapeHtml(step.workObject)}</span>`;
+            sentence += ` <span class="work-object">{${escapeHtml(step.workObject)}}</span>`;
           }
 
           // Add annotation/note if present
           if (step.annotation) {
-            sentence += `. <span class="note">${escapeHtml(step.annotation)}</span>`;
+            sentence += ` <span class="note">(${escapeHtml(step.annotation)})</span>`;
           }
         }
 
         // Notes render without a number; real steps keep numbering
         const numberHtml = stepNumber ? `<span class="step-number">${stepNumber}</span> ` : '';
-        html += `<p>${numberHtml}${sentence}.</p>`;
+        html += `<p>${numberHtml}${sentence}${step.isNote ? '' : '.'}</p>`;
       });
     });
 
@@ -71,7 +74,7 @@ function renderStorySelector() {
   if (state.domains.length <= 1) { selector.classList.remove('visible'); return; }
   selector.classList.add('visible');
   const tabs = state.domains.map((d, i) =>
-    `<button class="story-tab${state.currentDomain === i ? ' active' : ''}" data-index="${i}" style="${state.currentDomain === i ? 'background:' + d.color : ''}">${d.title}</button>`
+    `<button class="story-tab${state.currentDomain === i ? ' active' : ''}" data-index="${i}" style="${state.currentDomain === i ? 'background:' + d.color : ''}">${escapeHtml(d.title)}</button>`
   ).join('');
   selector.innerHTML = `<button class="story-tab${state.currentDomain === -1 ? ' active' : ''}" data-index="-1">All</button>${tabs}`;
   selector.querySelectorAll('.story-tab').forEach(tab => {
@@ -120,6 +123,7 @@ function updateVisibleDomain() {
   renderParticipants();
   renderFlows();
   renderSteps();
+  validate();
   fitToScreen();
 }
 
@@ -131,6 +135,5 @@ function update() {
   if (state.currentDomain >= state.domains.length) state.currentDomain = -1;
   updateVisibleDomain();
   renderStorySelector();
-  validate();
   document.getElementById('emptyState').style.display = Object.keys(state.participants).length ? 'none' : 'flex';
 }

@@ -430,6 +430,7 @@ function fitToScreen() {
   const ps = Object.values(state.participants);
   if (!ps.length) return;
   const rect = document.getElementById('diagramContainer').getBoundingClientRect();
+  if (rect.width < 100 || rect.height < 100) return;
 
   // Find bounding box of all participants in logical space
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -451,11 +452,11 @@ function fitToScreen() {
   const screenPad = 40; // Padding in screen pixels
 
   // Calculate zoom to fit content
-  state.zoom = Math.min(
+  state.zoom = Math.max(0.2, Math.min(
     (rect.width - screenPad * 2) / w,
     (rect.height - screenPad * 2) / h,
     1.5
-  );
+  ));
 
   // Center the content
   const centerX = (minX + maxX) / 2;

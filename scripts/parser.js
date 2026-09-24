@@ -6,8 +6,8 @@ function escapeRegex(string) {
 function parseDomainStory(input) {
   const lines = input.split('\n');
   const domains = [], errors = [];
-  // Global participant directory (keyed case-insensitively by name)
-  const participantMap = new Map();
+  // Actor definitions belong to a story, so examples can reuse a name with
+  // different annotations or icons without changing another story.
   let currentDomain = null, currentFlow = null, flowNum = 0;
   let inCodeBlock = false;
   let codeBuffer = [];
@@ -63,7 +63,7 @@ function parseDomainStory(input) {
     if (line.match(/^#[^#]/)) {
       const title = line.replace(/^#\s*/, '').trim();
       flowNum = 0;
-      currentDomain = { title, notes: [], participants: [], flows: [], color: DOMAIN_COLORS[domains.length % DOMAIN_COLORS.length] };
+      currentDomain = { title, notes: [], participants: [], participantMap: new Map(), flows: [], color: DOMAIN_COLORS[domains.length % DOMAIN_COLORS.length] };
       domains.push(currentDomain);
       currentFlow = null;
       return;
@@ -82,7 +82,7 @@ function parseDomainStory(input) {
     }
 
     if (!currentDomain) {
-      currentDomain = { title: 'Domain Story', notes: [], participants: [], flows: [], color: DOMAIN_COLORS[0] };
+      currentDomain = { title: 'Domain Story', notes: [], participants: [], participantMap: new Map(), flows: [], color: DOMAIN_COLORS[0] };
       domains.push(currentDomain);
     }
 
@@ -92,8 +92,8 @@ function parseDomainStory(input) {
         const name = m[1].trim();
         const icon = m[2].trim();
         const annotation = m[3] || null;
-        // Store/update in global directory keyed by lower-cased name
-        participantMap.set(name.toLowerCase(), { name, icon, annotation });
+        // Store/update in this story's directory, keyed case-insensitively.
+        currentDomain.participantMap.set(name.toLowerCase(), { name, icon, annotation });
       } else {
         errors.push({ line: lineNum, msg: 'Invalid actor', hint: '@Name (icon)' });
       }
@@ -110,42 +110,20 @@ function parseDomainStory(input) {
 
     if (line.startsWith('//')) return;
 
-    // Detect if this is a step line: it should reference at least one actor.
-    // Commas are treated as regular characters now (no longer required for parsing).
-    const allParticipants = Array.from(participantMap.values());
-    const mightBeStep = allParticipants.some(p =>
-      line.toLowerCase().includes(p.name.toLowerCase())
-    );
-
-    if (mightBeStep) {
-      if (!currentFlow) {
-        errors.push({
-          line: lineNum,
-          msg: 'Step outside flow',
-          hint: 'Add ## Flow first'
-        });
-        return;
-      }
-
-      const actorNames = allParticipants.map(p => p.name);
-
-      // Always use the whitespace-based parser so commas are fully optional.
-      // (Old comma-based syntax is still supported because commas can appear inside the action.)
-      const parsed = parseStepWhitespace(line, actorNames, lineNum, errors);
-
-      if (parsed) {
-        currentFlow.steps.push({ ...parsed, controlX: null, controlY: null });
-      }
+    if (!currentFlow) {
+      errors.push({ line: lineNum, msg: 'Step outside flow', hint: 'Add ## Flow first' });
+      return;
+    }
+    const actorNames = Array.from(currentDomain.participantMap.values(), p => p.name);
+    const parsed = parseStepWhitespace(line, actorNames, lineNum, errors);
+    if (parsed) {
+      currentFlow.steps.push({ ...parsed, controlX: null, controlY: null });
     }
   });
 
   // After all steps are parsed, determine which actors are actually used per domain
-  const participantLookup = (name) => {
-    if (!name) return null;
-    return participantMap.get(String(name).toLowerCase()) || null;
-  };
-
   domains.forEach(domain => {
+    const participantLookup = name => name && domain.participantMap.get(String(name).toLowerCase());
     const used = new Map();
     domain.flows.forEach(flow => {
       flow.steps.forEach(step => {
@@ -156,42 +134,21 @@ function parseDomainStory(input) {
       });
     });
     domain.participants = Array.from(used.values());
+    delete domain.participantMap;
   });
 
   return { domains, errors };
 }
 
-function parseStep(line, actorNames, lineNum, errors) {
-  let annotation = null, workObject = null, cleanLine = line;
-  const annM = cleanLine.match(/"([^"]+)"\s*$/);
-  if (annM) { annotation = annM[1]; cleanLine = cleanLine.replace(annM[0], '').trim(); }
-  const workM = cleanLine.match(/\{([^}]+)\}\s*$/);
-  if (workM) { workObject = workM[1].trim(); cleanLine = cleanLine.replace(workM[0], '').trim(); }
-  const parts = cleanLine.split(',').map(p => p.trim()).filter(p => p);
-  if (parts.length < 2) { errors.push({ line: lineNum, msg: 'Need 2+ parts', hint: 'From, action, To' }); return null; }
-  const fromName = parts[0] || '', toName = parts[parts.length - 1] || '';
-  const fromMatch = actorNames.find(n => n.toLowerCase() === fromName.toLowerCase());
-  const toMatch = actorNames.find(n => n.toLowerCase() === toName.toLowerCase());
-  if (!fromMatch) errors.push({ line: lineNum, msg: `Unknown: ${fromName}`, hint: '@' + fromName + ' (icon)' });
-  if (!toMatch && toName.toLowerCase() !== fromName.toLowerCase()) errors.push({ line: lineNum, msg: `Unknown: ${toName}`, hint: '@' + toName + ' (icon)' });
-  return { from: fromMatch || fromName, action: parts.length > 2 ? parts.slice(1, -1).join(', ') : '', to: toMatch || toName, workObject, annotation };
-}
-
 function parseStepWhitespace(line, actorNames, lineNum, errors) {
   let annotation = null, workObject = null, cleanLine = line;
 
-  // Extract annotation (quoted text at end)
-  const annM = cleanLine.match(/"([^"]+)"\s*$/);
-  if (annM) {
-    annotation = annM[1];
-    cleanLine = cleanLine.replace(annM[0], '').trim();
-  }
-
-  // Extract work object (curly braces at end)
-  const workM = cleanLine.match(/\{([^}]+)\}\s*$/);
-  if (workM) {
-    workObject = workM[1].trim();
-    cleanLine = cleanLine.replace(workM[0], '').trim();
+  // Permit {Object} "annotation" and the reverse order.
+  for (let i = 0; i < 2; i++) {
+    const annM = cleanLine.match(/"([^"]+)"\s*$/);
+    const workM = cleanLine.match(/\{([^}]+)\}\s*$/);
+    if (annM && !annotation) { annotation = annM[1]; cleanLine = cleanLine.slice(0, annM.index).trim(); }
+    else if (workM && !workObject) { workObject = workM[1].trim(); cleanLine = cleanLine.slice(0, workM.index).trim(); }
   }
 
   if (!cleanLine) {
@@ -208,7 +165,7 @@ function parseStepWhitespace(line, actorNames, lineNum, errors) {
 
   for (const actor of sortedActors) {
     // Case-insensitive match at start with word boundary
-    const pattern = new RegExp(`^${escapeRegex(actor)}\\b`, 'i');
+    const pattern = new RegExp(`^${escapeRegex(actor)}(?=\\s|,|$)`, 'i');
     if (pattern.test(cleanLine)) {
       fromMatch = actorNames.find(n => n.toLowerCase() === actor.toLowerCase());
       remainingLine = cleanLine.slice(actor.length).trim();
@@ -231,10 +188,10 @@ function parseStepWhitespace(line, actorNames, lineNum, errors) {
 
   for (const actor of sortedActors) {
     // Case-insensitive match at end with word boundary
-    const pattern = new RegExp(`\\b${escapeRegex(actor)}$`, 'i');
+    const pattern = new RegExp(`(?:^|\\s|,)${escapeRegex(actor)}$`, 'i');
     if (pattern.test(remainingLine)) {
       toMatch = actorNames.find(n => n.toLowerCase() === actor.toLowerCase());
-      action = remainingLine.slice(0, remainingLine.length - actor.length).trim();
+      action = remainingLine.slice(0, remainingLine.length - actor.length).replace(/,\s*$/, '').trim();
       break;
     }
   }
@@ -250,7 +207,7 @@ function parseStepWhitespace(line, actorNames, lineNum, errors) {
 
   return {
     from: fromMatch,
-    action: action || '',
+    action: action.replace(/^,\s*/, ''),
     to: toMatch,
     workObject,
     annotation
@@ -270,6 +227,9 @@ function validate() {
   const actors = Object.keys(state.participants).length;
   const steps = state.flows.reduce((s, f) => s + f.steps.length, 0);
   bar.className = 'validation-bar success';
-  text.innerHTML = `<span class="material-icons">check_circle</span> ${state.domains.length} domain${state.domains.length !== 1 ? 's' : ''}, ${actors} actors, ${steps} steps`;
+  const scope = state.currentDomain === -1
+    ? `${state.domains.length} stor${state.domains.length === 1 ? 'y' : 'ies'}`
+    : `Story ${state.currentDomain + 1} of ${state.domains.length}`;
+  text.innerHTML = `<span class="material-icons">check_circle</span> ${scope}, ${actors} actors, ${steps} steps`;
   badge.style.display = 'none';
 }
