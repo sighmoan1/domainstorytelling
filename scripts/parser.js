@@ -227,6 +227,9 @@ function validate() {
   const actors = Object.keys(state.participants).length;
   const steps = state.flows.reduce((s, f) => s + f.steps.length, 0);
   bar.className = 'validation-bar success';
-  text.innerHTML = `<span class="material-icons">check_circle</span> ${state.domains.length} domain${state.domains.length !== 1 ? 's' : ''}, ${actors} actors, ${steps} steps`;
+  const scope = state.currentDomain === -1
+    ? `${state.domains.length} stor${state.domains.length === 1 ? 'y' : 'ies'}`
+    : `Story ${state.currentDomain + 1} of ${state.domains.length}`;
+  text.innerHTML = `<span class="material-icons">check_circle</span> ${scope}, ${actors} actors, ${steps} steps`;
   badge.style.display = 'none';
 }

@@ -123,6 +123,7 @@ function updateVisibleDomain() {
   renderParticipants();
   renderFlows();
   renderSteps();
+  validate();
   fitToScreen();
 }
 
@@ -134,6 +135,5 @@ function update() {
   if (state.currentDomain >= state.domains.length) state.currentDomain = -1;
   updateVisibleDomain();
   renderStorySelector();
-  validate();
   document.getElementById('emptyState').style.display = Object.keys(state.participants).length ? 'none' : 'flex';
 }
